@@ -1,2 +1,2 @@
 # Pokker
- Helar Jaadla ja Silver Kolde programmeerimise projekt Tartu ülikooli aines Programmeerimine 2019.
+ Helar Jaadla ja Silver Kolde programmeerimise projekt Tartu Ülikooli õppeaines Programmeerimine 2019.
