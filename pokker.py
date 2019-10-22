@@ -100,5 +100,5 @@ def käsi(k1, k2, k3, k4, k5):
 
 
 
-#print(tee_numbriks('K♥'))
-#käsi("2♣", "3♦", "4♣", "5♣", "A♦")
+print(tee_numbriks('K♥'))
+käsi("2♣", "3♦", "4♣", "5♣", "A♦")
