@@ -11,13 +11,7 @@ def tee_numbriks(kaart):
         return kaart[:-1]
     
 def yks_paar(k1, k2, k3, k4, k5):
-    if k1[:-1] in k2[:-1] or k1[:-1] in k3[:-1] or k1[:-1] in k4[:-1] or k1[:-1] in k5[:-1]:
-        return True
-    elif k2[:-1] in k3[:-1] or k2[:-1] in k4[:-1] or k2[:-1] in k5[:-1]:
-        return True
-    elif k3[:-1] in k4[:-1] or k3[:-1] in k5[:-1]:
-        return True
-    elif k4[:-1] in k5[:-1]:
+    if k1[:-1] in k2[:-1] or k2[:-1] in k3[:-1] or k3[:-1] in k4[:-1] or k4[:-1] in k5[:-1]:
         return True
     
 def kaks_paari(k1, k2, k3, k4, k5):
@@ -75,30 +69,40 @@ def kmastirida(k1, k2, k3, k4, k5):
 
 def käsi(k1, k2, k3, k4, k5):
     parim = "Kõrge kaart"
+    tugevus = 0
     if yks_paar(k1, k2, k3, k4, k5):
         parim = "Üks paar"
+        tugevus = 1
     if kaks_paari(k1, k2, k3, k4, k5):
         parim = "Kaks paari"
+        tugevus = 2
     if kolmik(k1, k2, k3, k4, k5):
         parim = "Kolmik"
+        tugevus = 3
     if rida(k1, k2, k3, k4, k5):
         parim = "Rida"
+        tugevus = 4
     if mast(k1, k2, k3, k4, k5):
         parim = "Mast"
+        tugevus = 5
     if maja(k1, k2, k3, k4, k5):
         parim = "Maja"
+        tugevus = 6
     if nelik(k1, k2, k3, k4, k5):
         parim = "Nelik"
+        tugevus = 7
     if rida(k1, k2, k3, k4, k5) and mast(k1, k2, k3, k4, k5):
         parim = "Mastirida"
+        tugevus = 8
         if kmastirida(k1, k2, k3, k4, k5):
             parim = "Kuninglik mastirida"
+            tugevus = 9
         
         
     print(parim)
-    return(parim)
+    return (parim, tugevus)
 
 
 
 print(tee_numbriks('K♥'))
-käsi("2♣", "3♦", "4♣", "5♣", "A♦")
+print(käsi("2♣", "3♦", "4♣", "5♣", "A♦"))
