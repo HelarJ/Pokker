@@ -126,6 +126,3 @@ def käsi(k1, k2, k3, k4, k5):
         
         
     return (parim, tugevus)
-
-
-print(käsi("A♣", "5♦", "4♣", "3♣", "2♦"))
