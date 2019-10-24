@@ -1,6 +1,8 @@
 import pygame
 import random
+import pokker
 from sys import exit
+
 class pokkeriPõhi:
     def __init__(self):
         pygame.init()
@@ -28,6 +30,7 @@ class pokkeriPõhi:
             if not self.b:
                 self.b = self.käsi()
                 print(self.b)
+                print(pokker.käsi(self.b[0], self.b[1], self.b[2], self.b[3], self.b[4]))
             self.joonista_kaardid()
             pygame.display.update()
             self.fpsKell.tick(30)
