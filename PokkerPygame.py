@@ -22,24 +22,34 @@ class pokkeriPõhi:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-            kaart = pygame.image.load("kaardid/ärtu2.png")
-            kaart = pygame.transform.rotozoom(kaart, 0, 0.15)
-            self.aken.blit(kaart, (0, 0))
-            pygame.display.update()
-            self.fpsKell.tick(30)
             if not self.a:
                 self.a = self.käsi()
                 print(self.a)
             if not self.b:
                 self.b = self.käsi()
                 print(self.b)
+            self.joonista_kaardid()
+            pygame.display.update()
+            self.fpsKell.tick(30)
+            
             
     def joonista_kaardid(self):
         kaardid = self.a
-        for kaart in kaardid:
-            print(a)
-            
-            
+        i = 0
+        for nimi in kaardid:
+            kaart = pygame.image.load("Kaardid/"+nimi+".png")
+            kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+            self.aken.blit(kaart, (i+100, 100))
+            i += 150
+        kaardid = self.b
+        i = 0
+        for nimi in kaardid:
+            kaart = pygame.image.load("Kaardid/"+nimi+".png")
+            kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+            self.aken.blit(kaart, (i+100, 300))
+            i += 150
+        
+
     def käsi(self):
         käsi = []
         for i in range(5):
