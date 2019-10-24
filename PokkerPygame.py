@@ -4,6 +4,7 @@ pygame.init()
 screen_width = 900
 screen_height = 600
 display = pygame.display.set_mode((screen_width,screen_height))
+pygame.image.load('ärtuäss.png')
 
 
 run = True
