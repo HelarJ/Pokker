@@ -1,24 +1,24 @@
 import pygame
 from sys import exit
-pygame.init()
-screen_width = 900
-screen_height = 600
-display = pygame.display.set_mode((screen_width,screen_height))
-
-
-run = True
-
-while run:
-    pygame.time.delay(1)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-    ärtuäss = pygame.image.load('ärtuäss.png')
-    ärtuäss = pygame.transform.rotozoom(ärtuäss, 0, 0.15)
-    display.blit(ärtuäss, (0, 0))
-        
+class pokkeriPõhi:
+    def __init__(self):
+        pygame.init()
+        ekraani_laius = 900
+        ekraani_kõrgus = 600
+        self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus))
+        self.fpsKell = pygame.time.Clock()
     
-    pygame.display.update()
-    
-pygame.quit()
-exit()
+    def pokkeriKordus(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+            kaart = pygame.image.load("kaardid\/ärtu2.png")
+            kaart = pygame.transform.rotozoom(kaart, 0, 0.15)
+            self.aken.blit(kaart, (0, 0))
+            pygame.display.update()
+            self.fpsKell.tick(30)
+
+põhiaken = pokkeriPõhi()
+põhiaken.pokkeriKordus()
