@@ -11,8 +11,14 @@ def tee_numbriks(kaart):
         return kaart[:-1]
     
 def yks_paar(k1, k2, k3, k4, k5):
-    if k1[:-1] in k2[:-1] or k2[:-1] in k3[:-1] or k3[:-1] in k4[:-1] or k4[:-1] in k5[:-1]:
-        return True
+    if k1[:-1] in k2[:-1]:
+        return tee_numbriks(k1)
+    if k2[:-1] in k3[:-1]:
+        return tee_numbriks(k2)
+    if k3[:-1] in k4[:-1]:
+        return tee_numbriks(k3)
+    if k4[:-1] in k5[:-1]:
+        return tee_numbriks(k4)
     
 def kaks_paari(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k3[:-1] in k4[:-1] or k1[:-1] in k2[:-1] and k4[:-1] in k5[:-1]:
@@ -72,7 +78,7 @@ def käsi(k1, k2, k3, k4, k5):
     tugevus = 0
     if yks_paar(k1, k2, k3, k4, k5):
         parim = "Üks paar"
-        tugevus = 1
+        tugevus = 1 + (float(yks_paar(k1, k2, k3, k4, k5)))/100
     if kaks_paari(k1, k2, k3, k4, k5):
         parim = "Kaks paari"
         tugevus = 2
@@ -99,10 +105,7 @@ def käsi(k1, k2, k3, k4, k5):
             tugevus = 9
         
         
-    print(parim)
     return (parim, tugevus)
 
 
-
-print(tee_numbriks('K♥'))
-print(käsi("2♣", "3♦", "4♣", "5♣", "A♦"))
+print(käsi("2♣", "2♦", "4♣", "5♣", "A♦"))
