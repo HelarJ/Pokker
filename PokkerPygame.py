@@ -4,7 +4,6 @@ pygame.init()
 screen_width = 900
 screen_height = 600
 display = pygame.display.set_mode((screen_width,screen_height))
-pygame.image.load('ärtuäss.png')
 
 
 run = True
@@ -14,10 +13,11 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+    ärtuäss = pygame.image.load('ärtuäss.png')
+    ärtuäss = pygame.transform.rotozoom(ärtuäss, 0, 0.15)
+    display.blit(ärtuäss, (0, 0))
+        
     
-        
-        
-    display.fill((50, 150, 40))
     pygame.display.update()
     
 pygame.quit()
