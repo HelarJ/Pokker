@@ -43,13 +43,14 @@ def rida(k1, k2, k3, k4, k5):
     k4 = int(tee_numbriks(k4))
     k5 = int(tee_numbriks(k5))
     if k1 == k2-1 == k3-2 == k4-3 == k5-4:
-        return True
+        return k1
     if k5 == 14 and k1 == 2 and k2 == 3 and k3 == 4 and k4 == 5:
-        return True
+        return 1
         
 def mast(k1, k2, k3, k4, k5):
     if k1[-1] == k2[-1] == k3[-1] == k4[-1] == k5[-1]:
-        return True
+
+        return tee_numbriks(k5)
     
 def maja(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k1[:-1] in k3[:-1]:
@@ -89,25 +90,25 @@ def käsi(k1, k2, k3, k4, k5):
         tugevus = 3 + (float(kolmik(k1, k2, k3, k4, k5)))/100
     if rida(k1, k2, k3, k4, k5):
         parim = "Rida"
-        tugevus = 4
+        tugevus = 4.0 + (float(rida(k1, k2, k3, k4, k5)))/100
     if mast(k1, k2, k3, k4, k5):
         parim = "Mast"
-        tugevus = 5
+        tugevus = 5.0 + (float(mast(k1, k2, k3, k4, k5)))/100
     if maja(k1, k2, k3, k4, k5):
         parim = "Maja"
-        tugevus = 6
+        tugevus = 6.0
     if nelik(k1, k2, k3, k4, k5):
         parim = "Nelik"
-        tugevus = 7
+        tugevus = 7.0
     if rida(k1, k2, k3, k4, k5) and mast(k1, k2, k3, k4, k5):
         parim = "Mastirida"
-        tugevus = 8
+        tugevus = 8.0
         if kmastirida(k1, k2, k3, k4, k5):
             parim = "Kuninglik mastirida"
-            tugevus = 9
+            tugevus = 9.0
         
         
     return (parim, tugevus)
 
 
-print(käsi("3♣", "3♦", "4♣", "A♣", "A♦"))
+print(käsi("2♣", "3♦", "4♣", "5♣", "A♦"))
