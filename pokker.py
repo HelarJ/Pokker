@@ -1,14 +1,14 @@
 def tee_numbriks(kaart):
     if kaart[:-1] == "J":
-        return "11"
+        return 11
     elif kaart[:-1] == "Q":
-        return "12"
+        return 12
     elif kaart[:-1] == "K":
         return 13
     elif kaart[:-1] == "A":
         return 14
     else:
-        return kaart[:-1]
+        return int(kaart[:-1])
     
 def yks_paar(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1]:
@@ -74,9 +74,26 @@ def kmastirida(k1, k2, k3, k4, k5):
     k5 = int(tee_numbriks(k5))
     if k1 == 10 and k2 == 11 and k3 == 12 and k4 == 13 and k5 == 14:
         return True
+
+def sorteeri(k1, k2, k3, k4, k5):
+    sorteeritud = []
+    sorteeritud.append((tee_numbriks(k1), k1))
+    sorteeritud.append((tee_numbriks(k2), k2))
+    sorteeritud.append((tee_numbriks(k3), k3))
+    sorteeritud.append((tee_numbriks(k4), k4))
+    sorteeritud.append((tee_numbriks(k5), k5))
+    sorteeritud.sort()
     
+    return sorteeritud
 
 def käsi(k1, k2, k3, k4, k5):
+    s = sorteeri(k1, k2, k3, k4, k5)
+    k1 = s[0][1]
+    k2 = s[1][1]
+    k3 = s[2][1]
+    k4 = s[3][1]
+    k5 = s[4][1]
+    
     parim = "Kõrge kaart"
     tugevus = 0
     if yks_paar(k1, k2, k3, k4, k5):
@@ -111,4 +128,4 @@ def käsi(k1, k2, k3, k4, k5):
     return (parim, tugevus)
 
 
-print(käsi("2♣", "3♦", "4♣", "5♣", "A♦"))
+print(käsi("A♣", "5♦", "4♣", "3♣", "2♦"))
