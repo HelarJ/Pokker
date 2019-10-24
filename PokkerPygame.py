@@ -37,6 +37,7 @@ class pokkeriPõhi:
     def joonista_kaardid(self):
         kaardid = self.a
         for kaart in kaardid:
+            print(a)
             
             
     def käsi(self):
