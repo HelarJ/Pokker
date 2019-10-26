@@ -15,6 +15,9 @@ class pokkeriPõhi:
         self.c = False
         self.atugevus = 0
         self.btugevus = 0
+        self.flop = False
+        self.turn = False
+        self.river = False
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
                '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
                '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
@@ -38,6 +41,13 @@ class pokkeriPõhi:
             kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
             self.aken.blit(kaart, (i+325, 400))
             i += 150
+
+        if self.flop:
+            self.joonista_flop()
+        if self.turn:
+            self.joonista_turn()
+        if self.river:
+            self.joonista_river()
         
         
     def joonista_flop(self):
@@ -52,12 +62,12 @@ class pokkeriPõhi:
     def joonista_turn(self):
         kaart = pygame.image.load("Kaardid/"+self.c[3]+".png")
         kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
-        self.aken.blit(kaart, (400, 225))
+        self.aken.blit(kaart, (550, 225))
     
     def joonista_river(self):
         kaart = pygame.image.load("Kaardid/"+self.c[4]+".png")
         kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
-        self.aken.blit(kaart, (550, 225))
+        self.aken.blit(kaart, (700, 225))
 
 #    def joonista_tekst(self):
 #        if self.atugevus[1]>self.btugevus[1]:
@@ -96,6 +106,15 @@ class pokkeriPõhi:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if not self.flop:
+                        self.flop = True
+                    elif self.flop and not self.turn:
+                        self.turn = True
+                    elif self.flop and self.turn and not self.river:
+                        self.river = True
+
+
             if not self.a:
                 self.a = self.käsi()
                 print(self.a)
@@ -110,15 +129,6 @@ class pokkeriPõhi:
                 self.c = self.lauaKaardid()
                 print(self.c)
             self.joonista_kaardid()
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONUP:
-                    self.joonista_flop()
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONUP:
-                    self.juunista_turn()
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONUP:
-                    self.juunista_river()
                 
 #            self.joonista_tekst()
             pygame.display.update()
