@@ -49,7 +49,6 @@ def rida(k1, k2, k3, k4, k5):
         
 def mast(k1, k2, k3, k4, k5):
     if k1[-1] == k2[-1] == k3[-1] == k4[-1] == k5[-1]:
-
         return tee_numbriks(k5)
     
 def maja(k1, k2, k3, k4, k5):
@@ -93,7 +92,7 @@ def käsi(k1, k2, k3, k4, k5):
     k3 = s[2][1]
     k4 = s[3][1]
     k5 = s[4][1]
-    
+
     parim = "Kõrge kaart"
     tugevus = 0
     if yks_paar(k1, k2, k3, k4, k5):
@@ -123,6 +122,7 @@ def käsi(k1, k2, k3, k4, k5):
         if kmastirida(k1, k2, k3, k4, k5):
             parim = "Kuninglik mastirida"
             tugevus = 9.0
-        
+    else:
+        tugevus = float(s[0][0])/100
         
     return (parim, tugevus)

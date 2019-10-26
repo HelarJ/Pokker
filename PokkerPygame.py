@@ -40,17 +40,17 @@ class pokkeriPõhi:
 
     def joonista_tekst(self):
         if self.atugevus[1]>self.btugevus[1]:
-            võitja = "A"
+            võitja = "A on võitja"
         elif self.atugevus[1]<self.btugevus[1]:
-            võitja = "B"
+            võitja = "B on võitja"
         else:
             võitja = "Viik"
 
-        self.aken.blit(self.font.render(võitja+" on võitja", False, (255, 255, 255)), (10,10))
+        self.aken.blit(self.font.render(võitja, False, (255, 255, 255)), (10,10))
 
         self.aken.blit(self.font.render(self.atugevus[0], False, (255, 255, 255)), (300,50))
 
-        self.aken.blit(self.font.render(self.atugevus[0], False, (255, 255, 255)), (300,250))
+        self.aken.blit(self.font.render(self.btugevus[0], False, (255, 255, 255)), (300,250))
         
 
     def käsi(self):
