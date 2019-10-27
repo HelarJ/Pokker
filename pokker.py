@@ -89,9 +89,9 @@ def käsi(k1, k2, k3, k4, k5):
     s = sorteeri(k1, k2, k3, k4, k5)
     k1 = s[0][1]
     k2 = s[1][1]
-#    k3 = s[2][1]
-#    k4 = s[3][1]
-#    k5 = s[4][1]
+    k3 = s[2][1]
+    k4 = s[3][1]
+    k5 = s[4][1]
 
     parim = "Kõrge kaart"
     tugevus = float(s[1][0])/100 + float(s[0][0])/10**3 

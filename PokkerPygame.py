@@ -1,6 +1,7 @@
 import pygame
 import random
 import pokker
+import itertools
 from sys import exit
 
 class pokkeriPõhi:
@@ -18,6 +19,8 @@ class pokkeriPõhi:
         self.flop = False
         self.turn = False
         self.river = False
+        self.aKäsi = False
+        self.bKäsi = False
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
                '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
                '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
@@ -82,7 +85,6 @@ class pokkeriPõhi:
 #        self.aken.blit(self.font.render(self.atugevus[0], False, (255, 255, 255)), (300,50))
 
 #        self.aken.blit(self.font.render(self.btugevus[0], False, (255, 255, 255)), (300,250))
-        
 
     def käsi(self):
         käsi = []
@@ -93,12 +95,51 @@ class pokkeriPõhi:
         return käsi
 
     def lauaKaardid(self):
+        global laud
         laud = []
         for i in range(5):
             k1 = random.choice(self.uued)
             self.uued.pop(self.uued.index(k1))
             laud.append(k1)
         return laud
+    
+    def aTugevus(self):
+        aKaardid = self.a + laud
+        print(aKaardid)
+        kõik_variandid = itertools.combinations(aKaardid,5)
+        parim = "Kõrge kaart"
+        tugevus = 0
+        for variant in kõik_variandid:
+            k1 = variant[0]
+            k2 = variant[1]
+            k3 = variant[2]
+            k4 = variant[3]
+            k5 = variant[4]
+            #print(pokker.käsi(k1,k2,k3,k4,k5))
+            if pokker.käsi(k1,k2,k3,k4,k5)[1] > tugevus:
+                tugevus = pokker.käsi(k1,k2,k3,k4,k5)[1]
+                parim = pokker.käsi(k1,k2,k3,k4,k5)[0]
+        print("Mängija A", parim, tugevus)
+        return (parim, tugevus)
+    
+    def bTugevus(self):
+        bKaardid = self.b + laud
+        print(bKaardid)
+        kõik_variandid = itertools.combinations(bKaardid,5)
+        parim = "Kõrge kaart"
+        tugevus = 0
+        for variant in kõik_variandid:
+            k1 = variant[0]
+            k2 = variant[1]
+            k3 = variant[2]
+            k4 = variant[3]
+            k5 = variant[4]
+            if pokker.käsi(k1,k2,k3,k4,k5)[1] > tugevus:
+                tugevus = pokker.käsi(k1,k2,k3,k4,k5)[1]
+                parim = pokker.käsi(k1,k2,k3,k4,k5)[0]
+        print("Mängija B", parim, tugevus)
+        return (parim, tugevus)
+        
 
     def pokkeriKordus(self):
         while True:
@@ -129,6 +170,9 @@ class pokkeriPõhi:
                 self.c = self.lauaKaardid()
                 print(self.c)
             self.joonista_kaardid()
+            if not self.aKäsi and not self.bKäsi and self.a and self.b and self.c:
+                self.aKäsi = self.aTugevus()
+                self.bKäsi = self.bTugevus()
                 
 #            self.joonista_tekst()
             pygame.display.update()
