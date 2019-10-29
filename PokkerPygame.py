@@ -14,13 +14,11 @@ class pokkeriPõhi:
         self.a = False
         self.b = False
         self.c = False
-        self.atugevus = 0
-        self.btugevus = 0
         self.flop = False
         self.turn = False
         self.river = False
-        self.aKäsi = False
-        self.bKäsi = False
+        self.aTugevus = False
+        self.bTugevus = False
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
                '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
                '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
@@ -79,11 +77,8 @@ class pokkeriPõhi:
 #            võitja = "B on võitja"
 #        else:
 #            võitja = "Viik"
-
 #        self.aken.blit(self.font.render(võitja, False, (255, 255, 255)), (10,10))
-
 #        self.aken.blit(self.font.render(self.atugevus[0], False, (255, 255, 255)), (300,50))
-
 #        self.aken.blit(self.font.render(self.btugevus[0], False, (255, 255, 255)), (300,250))
 
     def käsi(self):
@@ -103,10 +98,9 @@ class pokkeriPõhi:
             laud.append(k1)
         return laud
     
-    def aTugevus(self):
-        aKaardid = self.a + laud
-        print(aKaardid)
-        kõik_variandid = itertools.combinations(aKaardid,5)
+    def tugevus(self, seitsekaarti):
+        print(seitsekaarti)
+        kõik_variandid = itertools.combinations(seitsekaarti,5)
         parim = "Kõrge kaart"
         tugevus = 0
         for variant in kõik_variandid:
@@ -119,26 +113,9 @@ class pokkeriPõhi:
             if pokker.käsi(k1,k2,k3,k4,k5)[1] > tugevus:
                 tugevus = pokker.käsi(k1,k2,k3,k4,k5)[1]
                 parim = pokker.käsi(k1,k2,k3,k4,k5)[0]
-        print("Mängija A", parim, tugevus)
+        print("Mängija", parim, tugevus)
         return (parim, tugevus)
     
-    def bTugevus(self):
-        bKaardid = self.b + laud
-        print(bKaardid)
-        kõik_variandid = itertools.combinations(bKaardid,5)
-        parim = "Kõrge kaart"
-        tugevus = 0
-        for variant in kõik_variandid:
-            k1 = variant[0]
-            k2 = variant[1]
-            k3 = variant[2]
-            k4 = variant[3]
-            k5 = variant[4]
-            if pokker.käsi(k1,k2,k3,k4,k5)[1] > tugevus:
-                tugevus = pokker.käsi(k1,k2,k3,k4,k5)[1]
-                parim = pokker.käsi(k1,k2,k3,k4,k5)[0]
-        print("Mängija B", parim, tugevus)
-        return (parim, tugevus)
         
 
     def pokkeriKordus(self):
@@ -154,25 +131,22 @@ class pokkeriPõhi:
                         self.turn = True
                     elif self.flop and self.turn and not self.river:
                         self.river = True
-
-
+                    
             if not self.a:
                 self.a = self.käsi()
                 print(self.a)
-#                self.atugevus = pokker.käsi(self.a[0], self.a[1], self.a[2], self.a[3], self.a[4])
-#                print(self.atugevus)
             if not self.b:
                 self.b = self.käsi()
                 print(self.b)
-#                self.btugevus = pokker.käsi(self.b[0], self.b[1], self.b[2], self.b[3], self.b[4])
-#                print(self.btugevus)
             if not self.c:
                 self.c = self.lauaKaardid()
                 print(self.c)
             self.joonista_kaardid()
-            if not self.aKäsi and not self.bKäsi and self.a and self.b and self.c:
-                self.aKäsi = self.aTugevus()
-                self.bKäsi = self.bTugevus()
+            if not self.aTugevus and not self.bTugevus and self.a and self.b and self.c:
+                self.aKaardid = self.a + laud
+                self.aTugevus = self.tugevus(self.aKaardid)
+                self.bKaardid = self.b + laud
+                self.bTugevus = self.tugevus(self.bKaardid)
                 
 #            self.joonista_tekst()
             pygame.display.update()
