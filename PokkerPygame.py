@@ -74,16 +74,16 @@ class pokkeriPõhi:
         kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
         self.aken.blit(kaart, (700, 225))
 
-#    def joonista_tekst(self):
-#        if self.atugevus[1]>self.btugevus[1]:
-#            võitja = "A on võitja"
-#        elif self.atugevus[1]<self.btugevus[1]:
-#            võitja = "B on võitja"
-#        else:
-#            võitja = "Viik"
-#        self.aken.blit(self.font.render(võitja, False, (255, 255, 255)), (10,10))
-#        self.aken.blit(self.font.render(self.atugevus[0], False, (255, 255, 255)), (300,50))
-#        self.aken.blit(self.font.render(self.btugevus[0], False, (255, 255, 255)), (300,250))
+    def joonista_tekst(self):
+        if self.aTugevus[1] > self.bTugevus[1]:
+            võitja = "A on võitja"
+        elif self.aTugevus[1] < self.bTugevus[1]:
+            võitja = "B on võitja"
+        else:
+            võitja = "Viik"
+        self.aken.blit(self.font.render(võitja, False, (255, 255, 255)), (10,10))
+        self.aken.blit(self.font.render(self.aTugevus[0], False, (255, 255, 255)), (400,10))
+        self.aken.blit(self.font.render(self.bTugevus[0], False, (255, 255, 255)), (400,550))
 
     def käsi(self):
         käsi = []
@@ -123,20 +123,29 @@ class pokkeriPõhi:
 
     def pokkeriKordus(self):
         while True:
+            self.aken.fill((0,0,0))
+            self.aken.blit(self.font.render("Uus mäng", False, (255, 255, 255)), (780,10))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    exit()
-                
-            #ALATES SIIT
-                    
+                    exit() 
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if not self.flop:
                         self.flop = True
                     elif self.flop and not self.turn:
                         self.turn = True
                     elif self.flop and self.turn and not self.river:
-                        self.river = True  
+                        self.river = True
+                    
+                    elif self.flop and self.turn and self.river and pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
+                       self.a = []
+                       self.b = []
+                       self.c = []
+                       self.uued = self.kaardid.copy()
+                       self.flop = False
+                       self.turn = False
+                       self.river = False
+                       
             if not self.a:
                 self.a = self.käsi()
                 print(self.a)
@@ -152,11 +161,7 @@ class pokkeriPõhi:
                 self.aTugevus = self.tugevus(self.aKaardid)
                 self.bKaardid = self.b + laud
                 self.bTugevus = self.tugevus(self.bKaardid)
-           
-           #KUNI SIIANI on ühe käe mängimine. Kui käsi mängitud, vaja see osa nullist alustada
-           
-           
-
+            self.joonista_tekst()
             pygame.display.update()
             self.fpsKell.tick(30)
 
