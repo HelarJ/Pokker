@@ -26,6 +26,7 @@ class pokkeriPõhi:
         self.aTugevus = False
         self.bTugevus = False
         self.uued = self.kaardid.copy()
+        self.laud = []
         
          
     
@@ -81,9 +82,10 @@ class pokkeriPõhi:
             võitja = "B on võitja"
         else:
             võitja = "Viik"
-        self.aken.blit(self.font.render(võitja, False, (255, 255, 255)), (10,10))
-        self.aken.blit(self.font.render(self.aTugevus[0], False, (255, 255, 255)), (400,10))
-        self.aken.blit(self.font.render(self.bTugevus[0], False, (255, 255, 255)), (400,550))
+        if self.river:
+            self.aken.blit(self.font.render(võitja, False, (255, 255, 255)), (10,10))
+            self.aken.blit(self.font.render(self.aTugevus[0], False, (255, 255, 255)), (400,10))
+            self.aken.blit(self.font.render(self.bTugevus[0], False, (255, 255, 255)), (400,550))
 
     def käsi(self):
         käsi = []
@@ -94,13 +96,12 @@ class pokkeriPõhi:
         return käsi
 
     def lauaKaardid(self):
-        global laud
-        laud = []
+        self.laud = []
         for i in range(5):
             k1 = random.choice(self.uued)
             self.uued.pop(self.uued.index(k1))
-            laud.append(k1)
-        return laud
+            self.laud.append(k1)
+        return self.laud
     
     def tugevus(self, seitsekaarti):
         print(seitsekaarti)
@@ -113,9 +114,10 @@ class pokkeriPõhi:
             k3 = variant[2]
             k4 = variant[3]
             k5 = variant[4]
-            if pokker.käsi(k1,k2,k3,k4,k5)[1] > tugevus:
-                tugevus = pokker.käsi(k1,k2,k3,k4,k5)[1]
-                parim = pokker.käsi(k1,k2,k3,k4,k5)[0]
+            uustugevus = pokker.käsi(k1,k2,k3,k4,k5)
+            if uustugevus[1] > tugevus:
+                tugevus = uustugevus[1]
+                parim = uustugevus[0]
         print("Mängija", parim, tugevus)
         return (parim, tugevus)
     
@@ -130,14 +132,7 @@ class pokkeriPõhi:
                     pygame.quit()
                     exit() 
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    if not self.flop:
-                        self.flop = True
-                    elif self.flop and not self.turn:
-                        self.turn = True
-                    elif self.flop and self.turn and not self.river:
-                        self.river = True
-                    
-                    elif self.flop and self.turn and self.river and pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
+                    if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
                        self.a = []
                        self.b = []
                        self.c = []
@@ -145,6 +140,15 @@ class pokkeriPõhi:
                        self.flop = False
                        self.turn = False
                        self.river = False
+                       self.aTugevus = False
+                       self.bTugevus = False
+                    elif not self.flop:
+                        self.flop = True
+                    elif self.flop and not self.turn:
+                        self.turn = True
+                    elif self.flop and self.turn and not self.river:
+                        self.river = True
+                    
                        
             if not self.a:
                 self.a = self.käsi()
@@ -157,13 +161,13 @@ class pokkeriPõhi:
                 print(self.c)
             self.joonista_kaardid()
             if not self.aTugevus and not self.bTugevus and self.a and self.b and self.c:
-                self.aKaardid = self.a + laud
+                self.aKaardid = self.a + self.laud
                 self.aTugevus = self.tugevus(self.aKaardid)
-                self.bKaardid = self.b + laud
+                self.bKaardid = self.b + self.laud
                 self.bTugevus = self.tugevus(self.bKaardid)
             self.joonista_tekst()
             pygame.display.update()
-            self.fpsKell.tick(30)
+            self.fpsKell.tick(10)
 
 põhiaken = pokkeriPõhi()
 põhiaken.pokkeriKordus()
