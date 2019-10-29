@@ -11,6 +11,12 @@ class pokkeriPõhi:
         ekraani_kõrgus = 600
         self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus))
         self.fpsKell = pygame.time.Clock()
+        self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
+                       '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
+                       '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
+                       '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
+        
+        #Järgmised 8 rida vaja muuta uuesti False, et jagada uued kaardid 
         self.a = False
         self.b = False
         self.c = False
@@ -19,11 +25,10 @@ class pokkeriPõhi:
         self.river = False
         self.aTugevus = False
         self.bTugevus = False
-        self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
-               '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
-               '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
-               '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
         self.uued = self.kaardid.copy()
+        
+         
+    
         self.font = pygame.font.SysFont('arial', 32) 
             
             
@@ -42,7 +47,6 @@ class pokkeriPõhi:
             kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
             self.aken.blit(kaart, (i+325, 400))
             i += 150
-
         if self.flop:
             self.joonista_flop()
         if self.turn:
@@ -109,7 +113,6 @@ class pokkeriPõhi:
             k3 = variant[2]
             k4 = variant[3]
             k5 = variant[4]
-            #print(pokker.käsi(k1,k2,k3,k4,k5))
             if pokker.käsi(k1,k2,k3,k4,k5)[1] > tugevus:
                 tugevus = pokker.käsi(k1,k2,k3,k4,k5)[1]
                 parim = pokker.käsi(k1,k2,k3,k4,k5)[0]
@@ -124,14 +127,16 @@ class pokkeriPõhi:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+                
+            #ALATES SIIT
+                    
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if not self.flop:
                         self.flop = True
                     elif self.flop and not self.turn:
                         self.turn = True
                     elif self.flop and self.turn and not self.river:
-                        self.river = True
-                    
+                        self.river = True  
             if not self.a:
                 self.a = self.käsi()
                 print(self.a)
@@ -147,8 +152,11 @@ class pokkeriPõhi:
                 self.aTugevus = self.tugevus(self.aKaardid)
                 self.bKaardid = self.b + laud
                 self.bTugevus = self.tugevus(self.bKaardid)
-                
-#            self.joonista_tekst()
+           
+           #KUNI SIIANI on ühe käe mängimine. Kui käsi mängitud, vaja see osa nullist alustada
+           
+           
+
             pygame.display.update()
             self.fpsKell.tick(30)
 
