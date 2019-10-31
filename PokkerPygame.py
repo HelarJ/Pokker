@@ -17,8 +17,14 @@ class pokkeriPõhi:
                         '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
                         '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
                         '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
-        
-        self.mängijatearv = 2
+        self.kaardipildid = {}
+        for knimi in self.kaardid:
+            kaart = pygame.image.load("Kaardid/"+knimi+".png")
+            kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+            self.kaardipildid[knimi] = kaart #Laeb kõik pildid juba mällu et mäng toimuks kiiremini ja programm kasutaks vähem resursse
+
+
+        self.mängijatearv = 8
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
         self.chipikohad = [(350,140), (350,580), (10,330), (730,330), (10,140), (10,580), (730, 140), (730,580)]
         self.chipid = [5000]*self.mängijatearv
@@ -33,13 +39,11 @@ class pokkeriPõhi:
         
         self.font = pygame.font.SysFont('arial', 32) 
             
-            
     def joonista_kaardid(self):
         for i in range(len(self.mängijad)):
             j = 0
             for knimi in self.mängijad[i]:
-                kaart = pygame.image.load("Kaardid/"+knimi+".png")
-                kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+                kaart = self.kaardipildid[knimi]
                 self.aken.blit(kaart, (self.algasukohad[i][0]+j, self.algasukohad[i][1]))
                 j+=55
 
@@ -55,20 +59,17 @@ class pokkeriPõhi:
     def joonista_flop(self):
         kaardid = self.laud[:3]
         i = 0
-        for nimi in kaardid:
-            kaart = pygame.image.load("Kaardid/"+nimi+".png")
-            kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+        for knimi in kaardid:
+            kaart = self.kaardipildid[knimi]
             self.aken.blit(kaart, (i+200, 225))
             i += 115
     
     def joonista_turn(self):
-        kaart = pygame.image.load("Kaardid/"+self.laud[3]+".png")
-        kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+        kaart = self.kaardipildid[self.laud[3]]
         self.aken.blit(kaart, (545, 225))
     
     def joonista_river(self):
-        kaart = pygame.image.load("Kaardid/"+self.laud[4]+".png")
-        kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+        kaart = self.kaardipildid[self.laud[4]]
         self.aken.blit(kaart, (657, 225))
 
     def joonista_tekst(self):
@@ -172,13 +173,6 @@ class pokkeriPõhi:
                        self.kellekäik = 0
                        self.pot = 0
                        self.uued = self.kaardid.copy()
-                    """elif not self.flop and self.kk:
-                        self.flop = True
-                    
-                    elif self.flop and not self.turn and self.kk:
-                        self.turn = True
-                    elif self.flop and self.turn and not self.river and self.kk:
-                        self.river = True"""
                     
             if not self.mängijad:
                 self.mängijad = self.loo_mängijad()
