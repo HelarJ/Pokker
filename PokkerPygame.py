@@ -18,12 +18,15 @@ class pokkeriPõhi:
                         '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
                         '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
         
-        self.mängijatearv = 2
+        self.mängijatearv = 8
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
+        self.chipikohad = [(350,140), (350,580), (10,330), (730,330), (10,140), (10,580), (730, 140), (730,580)]
+        self.chips = [5000]*self.mängijatearv
+        
        
         #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
-        self.flop, self.turn, self.river = False,False,False
+        self.flop, self.turn, self.river, self.kk = False,False,False,False
         self.uued = self.kaardid.copy()
         
         self.font = pygame.font.SysFont('arial', 32) 
@@ -69,7 +72,8 @@ class pokkeriPõhi:
     def joonista_tekst(self):
         for i in range(self.mängijatearv):
             self.aken.blit(pygame.font.SysFont('arial', 52).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
-
+        for i in range(self.mängijatearv):
+            self.aken.blit(pygame.font.SysFont('arial', 25).render(str(self.chips[i]), True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
         võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ self.võitja[1][0]
         if self.river:
             self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
@@ -134,8 +138,8 @@ class pokkeriPõhi:
 
         print("võitja", uusvõitja)
         self.võitja = uusvõitja
+        
             
-
 
     def pokkeriKordus(self):
         while True:
@@ -149,11 +153,11 @@ class pokkeriPõhi:
                        self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
                        self.flop, self.turn, self.river = False,False,False
                        self.uued = self.kaardid.copy()
-                    elif not self.flop:
+                    elif not self.flop and self.kk:
                         self.flop = True
-                    elif self.flop and not self.turn:
+                    elif self.flop and not self.turn and self.kk:
                         self.turn = True
-                    elif self.flop and self.turn and not self.river:
+                    elif self.flop and self.turn and not self.river and self.kk:
                         self.river = True
                     
             if not self.mängijad:
