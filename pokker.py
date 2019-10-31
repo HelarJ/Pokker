@@ -94,7 +94,7 @@ def käsi(k1, k2, k3, k4, k5):
     k5 = s[4][1]
 
     parim = "Kõrge kaart"
-    tugevus = float(s[1][0])/100 + float(s[0][0])/10**3 
+    tugevus = tee_numbriks(k5)/100 + tee_numbriks(k4)/10000 + tee_numbriks(k3)/1000000 + tee_numbriks(k2)/100000000 + tee_numbriks(k1)/10000000000
     
     if yks_paar(k1, k2, k3, k4, k5):
         parim = "Üks paar"

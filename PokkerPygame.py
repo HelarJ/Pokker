@@ -18,7 +18,7 @@ class pokkeriPõhi:
                         '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
                         '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
         
-        self.mängijatearv = 8
+        self.mängijatearv = 2
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
        
         #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
