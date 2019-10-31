@@ -18,15 +18,17 @@ class pokkeriPõhi:
                         '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
                         '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
         
-        self.mängijatearv = 8
+        self.mängijatearv = 2
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
         self.chipikohad = [(350,140), (350,580), (10,330), (730,330), (10,140), (10,580), (730, 140), (730,580)]
-        self.chips = [5000]*self.mängijatearv
+        self.chipid = [5000]*self.mängijatearv
+        self.pot = 0
         
        
         #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
-        self.flop, self.turn, self.river, self.kk = False,False,False,False
+        self.flop, self.turn, self.river, self.kk, self.läbi = False,False,False,False,False
+        self.kellekäik = 0
         self.uued = self.kaardid.copy()
         
         self.font = pygame.font.SysFont('arial', 32) 
@@ -73,10 +75,14 @@ class pokkeriPõhi:
         for i in range(self.mängijatearv):
             self.aken.blit(pygame.font.SysFont('arial', 52).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
         for i in range(self.mängijatearv):
-            self.aken.blit(pygame.font.SysFont('arial', 25).render(str(self.chips[i]), True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
+            self.aken.blit(pygame.font.SysFont('arial', 25).render(str(self.chipid[i]), True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
         võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ self.võitja[1][0]
         if self.river:
             self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
+        
+        mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] Panusta 100, [F] Fold"
+        if not self.river:#joonistab ainult siis kui mäng veel lõppenud pole
+            self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (250,400))
             
         self.aken.blit(self.font.render("Uus mäng", True, (255, 255, 255), (10,10,10)), (780,10))
         
@@ -148,17 +154,31 @@ class pokkeriPõhi:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit() 
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_r:
+                        if not self.läbi:
+                            if self.chipid[self.kellekäik] >= 100: #kui mängijal on piisavalt chippe
+                                self.chipid[self.kellekäik] -= 100 #võetakse mängijalt need ära
+                                self.pot += 100                    #ja lisatakse potti
+                                self.kellekäik += 1
+                                if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
+                                    self.kk = True
+
+
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
                        self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
-                       self.flop, self.turn, self.river = False,False,False
+                       self.flop, self.turn, self.river,self.kk, self.läbi = False,False,False,False,False
+                       self.kellekäik = 0
+                       self.pot = 0
                        self.uued = self.kaardid.copy()
-                    elif not self.flop and self.kk:
+                    """elif not self.flop and self.kk:
                         self.flop = True
+                    
                     elif self.flop and not self.turn and self.kk:
                         self.turn = True
                     elif self.flop and self.turn and not self.river and self.kk:
-                        self.river = True
+                        self.river = True"""
                     
             if not self.mängijad:
                 self.mängijad = self.loo_mängijad()
@@ -171,6 +191,24 @@ class pokkeriPõhi:
             if not self.tugevused:
                 self.tugevused = self.leia_tugevused()
                 self.leia_võitja()
+            if not self.flop and self.kk:
+                self.flop = True
+                self.kk = False
+                self.kellekäik = 0
+            elif self.flop and not self.turn and self.kk:
+                self.turn = True
+                self.kk = False
+                self.kellekäik = 0
+            elif self.flop and self.turn and not self.river and self.kk:
+                self.river = True
+                jagatudpot = self.pot/len(self.võitja[0])
+                for võit in self.võitja[0]:
+                    self.chipid[võit-1] += round(jagatudpot)
+                self.läbi = True
+
+
+
+
 
             self.joonista_tekst()
             pygame.display.update()
