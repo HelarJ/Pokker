@@ -20,14 +20,10 @@ class pokkeriPõhi:
         
         self.mängijatearv = 8
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
+       
         #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
-        self.mängijad = []
-        self.laud = False
-        self.flop = False
-        self.turn = False
-        self.river = False
-        self.tugevused = []
-        self.võitja = []
+        self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
+        self.flop, self.turn, self.river = False,False,False
         self.uued = self.kaardid.copy()
         
         self.font = pygame.font.SysFont('arial', 32) 
@@ -146,14 +142,9 @@ class pokkeriPõhi:
                     exit() 
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
-                       self.mängijad = []
-                       self.laud = []
+                       self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
+                       self.flop, self.turn, self.river = False,False,False
                        self.uued = self.kaardid.copy()
-                       self.flop = False
-                       self.turn = False
-                       self.river = False
-                       self.tugevused = []
-                       self.võitja = []
                     elif not self.flop:
                         self.flop = True
                     elif self.flop and not self.turn:
