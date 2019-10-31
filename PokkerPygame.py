@@ -19,14 +19,13 @@ class pokkeriPõhi:
         #Järgmised 8 rida vaja muuta uuesti False, et jagada uued kaardid 
         self.a = False
         self.b = False
-        self.c = False
+        self.laud = False
         self.flop = False
         self.turn = False
         self.river = False
         self.aTugevus = False
         self.bTugevus = False
         self.uued = self.kaardid.copy()
-        self.laud = []
         
          
     
@@ -96,12 +95,12 @@ class pokkeriPõhi:
         return käsi
 
     def lauaKaardid(self):
-        self.laud = []
+        uuslaud = []
         for i in range(5):
             k1 = random.choice(self.uued)
             self.uued.pop(self.uued.index(k1))
-            self.laud.append(k1)
-        return self.laud
+            uuslaud.append(k1)
+        return uuslaud
     
     def tugevus(self, seitsekaarti):
         print(seitsekaarti)
@@ -135,7 +134,7 @@ class pokkeriPõhi:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
                        self.a = []
                        self.b = []
-                       self.c = []
+                       self.laud = []
                        self.uued = self.kaardid.copy()
                        self.flop = False
                        self.turn = False
@@ -156,18 +155,18 @@ class pokkeriPõhi:
             if not self.b:
                 self.b = self.käsi()
                 print(self.b)
-            if not self.c:
-                self.c = self.lauaKaardid()
-                print(self.c)
+            if not self.laud:
+                self.laud = self.lauaKaardid()
+                print(self.laud)
             self.joonista_kaardid()
-            if not self.aTugevus and not self.bTugevus and self.a and self.b and self.c:
+            if not self.aTugevus and not self.bTugevus:
                 self.aKaardid = self.a + self.laud
                 self.aTugevus = self.tugevus(self.aKaardid)
                 self.bKaardid = self.b + self.laud
                 self.bTugevus = self.tugevus(self.bKaardid)
             self.joonista_tekst()
             pygame.display.update()
-            self.fpsKell.tick(10)
+            self.fpsKell.tick(30)
 
 põhiaken = pokkeriPõhi()
 põhiaken.pokkeriKordus()
