@@ -49,7 +49,7 @@ def rida(k1, k2, k3, k4, k5):
         
 def mast(k1, k2, k3, k4, k5):
     if k1[-1] == k2[-1] == k3[-1] == k4[-1] == k5[-1]:
-        return tee_numbriks(k5)
+        return tee_numbriks(k5)/100 + tee_numbriks(k4)/10000 + tee_numbriks(k3)/1000000 + tee_numbriks(k2)/100000000 + tee_numbriks(k1)/10000000000
     
 def maja(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k1[:-1] in k3[:-1]:
@@ -110,7 +110,7 @@ def käsi(k1, k2, k3, k4, k5):
         tugevus = 4.0 + rida(k1, k2, k3, k4, k5)/100
     if mast(k1, k2, k3, k4, k5):
         parim = "Mast"
-        tugevus = 5.0 + tee_numbriks(k5)/100
+        tugevus = 5.0 + mast(k1, k2, k3, k4, k5)
     if maja(k1, k2, k3, k4, k5):
         parim = "Maja"
         tugevus = 6.0 + maja(k1, k2, k3, k4, k5)
@@ -119,7 +119,7 @@ def käsi(k1, k2, k3, k4, k5):
         tugevus = 7.0 + nelik(k1, k2, k3, k4, k5)
     if rida(k1, k2, k3, k4, k5) and mast(k1, k2, k3, k4, k5):
         parim = "Mastirida"
-        tugevus = 8.0 + tee_numbriks(k5)/100
+        tugevus = 8.0 + rida(k1, k2, k3, k4, k5)/100
         if kmastirida(k1, k2, k3, k4, k5):
             parim = "Kuninglik mastirida"
             tugevus = 9.0
