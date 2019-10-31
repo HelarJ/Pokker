@@ -12,29 +12,29 @@ def tee_numbriks(kaart):
     
 def yks_paar(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1]:
-        return tee_numbriks(k1)
+        return tee_numbriks(k1)/100 + tee_numbriks(k5)/10000 + tee_numbriks(k4)/1000000 + tee_numbriks(k3)/100000000
     if k2[:-1] in k3[:-1]:
-        return tee_numbriks(k2)
+        return tee_numbriks(k2)/100 + tee_numbriks(k5)/10000 + tee_numbriks(k4)/1000000 + tee_numbriks(k1)/100000000
     if k3[:-1] in k4[:-1]:
-        return tee_numbriks(k3)
+        return tee_numbriks(k3)/100 + tee_numbriks(k5)/10000 + tee_numbriks(k2)/1000000 + tee_numbriks(k1)/100000000
     if k4[:-1] in k5[:-1]:
-        return tee_numbriks(k4)
+        return tee_numbriks(k4)/100 + tee_numbriks(k3)/10000 + tee_numbriks(k2)/1000000 + tee_numbriks(k1)/100000000
     
 def kaks_paari(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k3[:-1] in k4[:-1]:
-        return tee_numbriks(k3)
+        return tee_numbriks(k3)/100 + tee_numbriks(k1)/10000 + tee_numbriks(k5)/1000000
     if k1[:-1] in k2[:-1] and k4[:-1] in k5[:-1]:
-        return tee_numbriks(k4)
+        return tee_numbriks(k4)/100 + tee_numbriks(k1)/10000 + tee_numbriks(k3)/1000000
     if k2[:-1] in k3[:-1] and k4[:-1] in k5[:-1]:
-        return tee_numbriks(k4)
+        return tee_numbriks(k4)/100 + tee_numbriks(k1)/10000 + tee_numbriks(k4)/1000000
     
 def kolmik(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k1[:-1] in k3[:-1]:
-        return tee_numbriks(k1)
+        return tee_numbriks(k1)/100 + tee_numbriks(k5)/10000 + tee_numbriks(k4)/1000000
     if k2[:-1] in k3[:-1] and k2[:-1] in k4[:-1]:
-        return tee_numbriks(k2)
+        return tee_numbriks(k2)/100 + tee_numbriks(k5)/10000 + tee_numbriks(k1)/1000000
     if k3[:-1] in k4[:-1] and k3[:-1] in k5[:-1]:
-        return tee_numbriks(k3)
+        return tee_numbriks(k3)/100 + tee_numbriks(k2)/10000 + tee_numbriks(k1)/1000000
     
 def rida(k1, k2, k3, k4, k5):
     k1 = int(tee_numbriks(k1))
@@ -43,7 +43,7 @@ def rida(k1, k2, k3, k4, k5):
     k4 = int(tee_numbriks(k4))
     k5 = int(tee_numbriks(k5))
     if k1 == k2-1 == k3-2 == k4-3 == k5-4:
-        return k1
+        return k5
     if k5 == 14 and k1 == 2 and k2 == 3 and k3 == 4 and k4 == 5:
         return 1
         
@@ -54,16 +54,16 @@ def mast(k1, k2, k3, k4, k5):
 def maja(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k1[:-1] in k3[:-1]:
         if k4[:-1] in k5[:-1]:
-            return True
+            return tee_numbriks(k1)/100 + tee_numbriks(k4)/10000
     if k3[:-1] in k4[:-1] and k3[:-1] in k5[:-1]:
         if k1[:-1] in k2[:-1]:
-            return True
+            return tee_numbriks(k3)/100 + tee_numbriks(k1)/10000
         
 def nelik(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k1[:-1] in k3[:-1] and k1[:-1] in k4[:-1]:
-        return True
+        return tee_numbriks(k1)/100 + tee_numbriks(k5)/10000
     if k2[:-1] in k3[:-1] and k2[:-1] in k4[:-1] and k2[:-1] in k5[:-1]:
-        return True
+        return tee_numbriks(k2)/100 + tee_numbriks(k1)/10000
     
 def kmastirida(k1, k2, k3, k4, k5):
     k1 = int(tee_numbriks(k1))
@@ -98,28 +98,28 @@ def käsi(k1, k2, k3, k4, k5):
     
     if yks_paar(k1, k2, k3, k4, k5):
         parim = "Üks paar"
-        tugevus = 1 + (float(yks_paar(k1, k2, k3, k4, k5)))/100
+        tugevus = 1 + yks_paar(k1, k2, k3, k4, k5)
     if kaks_paari(k1, k2, k3, k4, k5):
         parim = "Kaks paari"
-        tugevus = 2 + (float(kaks_paari(k1, k2, k3, k4, k5)))/100
+        tugevus = 2 + kaks_paari(k1, k2, k3, k4, k5)
     if kolmik(k1, k2, k3, k4, k5):
         parim = "Kolmik"
-        tugevus = 3 + (float(kolmik(k1, k2, k3, k4, k5)))/100
+        tugevus = 3 + kolmik(k1, k2, k3, k4, k5)
     if rida(k1, k2, k3, k4, k5):
         parim = "Rida"
-        tugevus = 4.0 + (float(rida(k1, k2, k3, k4, k5)))/100
+        tugevus = 4.0 + rida(k1, k2, k3, k4, k5)/100
     if mast(k1, k2, k3, k4, k5):
         parim = "Mast"
-        tugevus = 5.0 + (float(mast(k1, k2, k3, k4, k5)))/100
+        tugevus = 5.0 + tee_numbriks(k5)/100
     if maja(k1, k2, k3, k4, k5):
         parim = "Maja"
-        tugevus = 6.0
+        tugevus = 6.0 + maja(k1, k2, k3, k4, k5)
     if nelik(k1, k2, k3, k4, k5):
         parim = "Nelik"
-        tugevus = 7.0
+        tugevus = 7.0 + nelik(k1, k2, k3, k4, k5)
     if rida(k1, k2, k3, k4, k5) and mast(k1, k2, k3, k4, k5):
         parim = "Mastirida"
-        tugevus = 8.0
+        tugevus = 8.0 + tee_numbriks(k5)/100
         if kmastirida(k1, k2, k3, k4, k5):
             parim = "Kuninglik mastirida"
             tugevus = 9.0
