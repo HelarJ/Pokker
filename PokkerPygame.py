@@ -8,7 +8,9 @@ class pokkeriPõhi:
     def __init__(self):
         pygame.init()
         ekraani_laius = 900
+        self.lü = ekraani_laius/100 #laiuseühik
         ekraani_kõrgus = 600
+        self.kü = ekraani_kõrgus/100 #kõrguseühik
         self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus))
         self.fpsKell = pygame.time.Clock()
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
@@ -16,37 +18,31 @@ class pokkeriPõhi:
                        '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
                        '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
         
-        #Järgmised 8 rida vaja muuta uuesti False, et jagada uued kaardid 
-        self.a = False
-        self.b = False
+        self.mängijatearv = 8
+        self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
+        #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
+        self.mängijad = []
         self.laud = False
         self.flop = False
         self.turn = False
         self.river = False
-        self.aTugevus = False
-        self.bTugevus = False
+        self.tugevused = []
+        self.võitja = []
         self.uued = self.kaardid.copy()
         
-         
-    
         self.font = pygame.font.SysFont('arial', 32) 
             
             
     def joonista_kaardid(self):
-        kaardid = self.a
-        i = 0
-        for nimi in kaardid:
-            kaart = pygame.image.load("Kaardid/"+nimi+".png")
-            kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
-            self.aken.blit(kaart, (i+325, 50))
-            i += 150
-        kaardid = self.b
-        i = 0
-        for nimi in kaardid:
-            kaart = pygame.image.load("Kaardid/"+nimi+".png")
-            kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
-            self.aken.blit(kaart, (i+325, 400))
-            i += 150
+        for i in range(len(self.mängijad)):
+            j = 0
+            for knimi in self.mängijad[i]:
+                kaart = pygame.image.load("Kaardid/"+knimi+".png")
+                kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+                self.aken.blit(kaart, (self.algasukohad[i][0]+j, self.algasukohad[i][1]))
+                j+=55
+
+
         if self.flop:
             self.joonista_flop()
         if self.turn:
@@ -56,35 +52,34 @@ class pokkeriPõhi:
         
         
     def joonista_flop(self):
-        kaardid = self.c[:3]
+        kaardid = self.laud[:3]
         i = 0
         for nimi in kaardid:
             kaart = pygame.image.load("Kaardid/"+nimi+".png")
             kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
-            self.aken.blit(kaart, (i+100, 225))
-            i += 150
+            self.aken.blit(kaart, (i+200, 225))
+            i += 115
     
     def joonista_turn(self):
-        kaart = pygame.image.load("Kaardid/"+self.c[3]+".png")
+        kaart = pygame.image.load("Kaardid/"+self.laud[3]+".png")
         kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
-        self.aken.blit(kaart, (550, 225))
+        self.aken.blit(kaart, (545, 225))
     
     def joonista_river(self):
-        kaart = pygame.image.load("Kaardid/"+self.c[4]+".png")
+        kaart = pygame.image.load("Kaardid/"+self.laud[4]+".png")
         kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
-        self.aken.blit(kaart, (700, 225))
+        self.aken.blit(kaart, (657, 225))
 
     def joonista_tekst(self):
-        if self.aTugevus[1] > self.bTugevus[1]:
-            võitja = "A on võitja"
-        elif self.aTugevus[1] < self.bTugevus[1]:
-            võitja = "B on võitja"
-        else:
-            võitja = "Viik"
+        for i in range(self.mängijatearv):
+            self.aken.blit(pygame.font.SysFont('arial', 52).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
+
+        võitjastr = "Mängija " + str(self.võitja[0]+1) + " on võitja | "+ self.võitja[1][0]
         if self.river:
-            self.aken.blit(self.font.render(võitja, False, (255, 255, 255)), (10,10))
-            self.aken.blit(self.font.render(self.aTugevus[0], False, (255, 255, 255)), (400,10))
-            self.aken.blit(self.font.render(self.bTugevus[0], False, (255, 255, 255)), (400,550))
+            self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
+            
+        self.aken.blit(self.font.render("Uus mäng", True, (255, 255, 255), (10,10,10)), (780,10))
+        
 
     def käsi(self):
         käsi = []
@@ -120,27 +115,45 @@ class pokkeriPõhi:
         print("Mängija", parim, tugevus)
         return (parim, tugevus)
     
-        
+    def loo_mängijad(self):
+        uuedmängijad = []
+        for i in range(self.mängijatearv):
+            uuedmängijad.append(self.käsi())
+        return uuedmängijad
+
+    def leia_tugevused(self):
+        uuedtugevused = []
+        for mängija in self.mängijad:
+            uuedtugevused.append(self.tugevus(mängija + self.laud))
+        print("tugevused", uuedtugevused)
+        return uuedtugevused
+    
+    def leia_võitja(self):
+        uusvõitja = [0,(0,0)]
+        for i in range(len(self.tugevused)):
+            if self.tugevused[i][1] > uusvõitja[1][1]:
+                uusvõitja = (i,self.tugevused[i])
+        self.võitja = uusvõitja
+            
+
 
     def pokkeriKordus(self):
         while True:
             self.aken.fill((0,0,0))
-            self.aken.blit(self.font.render("Uus mäng", False, (255, 255, 255)), (780,10))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit() 
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
-                       self.a = []
-                       self.b = []
+                       self.mängijad = []
                        self.laud = []
                        self.uued = self.kaardid.copy()
                        self.flop = False
                        self.turn = False
                        self.river = False
-                       self.aTugevus = False
-                       self.bTugevus = False
+                       self.tugevused = []
+                       self.võitja = []
                     elif not self.flop:
                         self.flop = True
                     elif self.flop and not self.turn:
@@ -148,22 +161,18 @@ class pokkeriPõhi:
                     elif self.flop and self.turn and not self.river:
                         self.river = True
                     
-                       
-            if not self.a:
-                self.a = self.käsi()
-                print(self.a)
-            if not self.b:
-                self.b = self.käsi()
-                print(self.b)
+            if not self.mängijad:
+                self.mängijad = self.loo_mängijad()
+                print("mängijad",self.mängijad)
+            
             if not self.laud:
                 self.laud = self.lauaKaardid()
-                print(self.laud)
+
             self.joonista_kaardid()
-            if not self.aTugevus and not self.bTugevus:
-                self.aKaardid = self.a + self.laud
-                self.aTugevus = self.tugevus(self.aKaardid)
-                self.bKaardid = self.b + self.laud
-                self.bTugevus = self.tugevus(self.bKaardid)
+            if not self.tugevused:
+                self.tugevused = self.leia_tugevused()
+                self.leia_võitja()
+
             self.joonista_tekst()
             pygame.display.update()
             self.fpsKell.tick(30)
