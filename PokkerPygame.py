@@ -14,9 +14,9 @@ class pokkeriPõhi:
         self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus))
         self.fpsKell = pygame.time.Clock()
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
-                       '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
-                       '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
-                       '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
+                        '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
+                        '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
+                        '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
         
         self.mängijatearv = 8
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
@@ -70,7 +70,7 @@ class pokkeriPõhi:
         for i in range(self.mängijatearv):
             self.aken.blit(pygame.font.SysFont('arial', 52).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
 
-        võitjastr = "Mängija " + str(self.võitja[0]+1) + " on võitja | "+ self.võitja[1][0]
+        võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ self.võitja[1][0]
         if self.river:
             self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
             
@@ -125,10 +125,14 @@ class pokkeriPõhi:
         return uuedtugevused
     
     def leia_võitja(self):
-        uusvõitja = [0,(0,0)]
+        uusvõitja = [[0],(0,0)]
         for i in range(len(self.tugevused)):
             if self.tugevused[i][1] > uusvõitja[1][1]:
-                uusvõitja = (i,self.tugevused[i])
+                uusvõitja = ([i+1],self.tugevused[i])
+            elif self.tugevused[i][1] == uusvõitja[1][1]:
+                uusvõitja[0].append(i+1)
+
+        print("võitja", uusvõitja)
         self.võitja = uusvõitja
             
 
