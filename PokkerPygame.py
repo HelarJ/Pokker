@@ -24,7 +24,7 @@ class pokkeriPõhi:
             self.kaardipildid[knimi] = kaart #Laeb kõik pildid juba mällu et mäng toimuks kiiremini ja programm kasutaks vähem resursse
 
 
-        self.mängijatearv = 8
+        self.mängijatearv = 3
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
         self.chipikohad = [(350,140), (350,580), (10,330), (730,330), (10,140), (10,580), (730, 140), (730,580)]
         self.chipid = [5000]*self.mängijatearv
@@ -83,11 +83,11 @@ class pokkeriPõhi:
                 chipistr = str(self.chipid[i])
             self.aken.blit(pygame.font.SysFont('arial', 25).render(chipistr, True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
         
-        if self.river:
+        if self.läbi:
             võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ self.võitja[1][0]
             self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
         
-        if not self.river:#joonistab ainult siis kui mäng veel lõppenud pole
+        if not self.läbi: #joonistab ainult siis kui mäng veel lõppenud pole
             mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] Panusta 100, [F] Fold"
             self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (250,400))
             
@@ -208,11 +208,15 @@ class pokkeriPõhi:
                 self.turn = True
                 self.kk = False
                 self.kellekäik = 0
+                
             elif self.flop and self.turn and not self.river and self.kk:
                 self.river = True
+                self.kk = False
                 self.kellekäik = 0
+                
+            elif self.flop and self.turn and self.river and self.kk and not self.läbi:
                 self.leia_võitja()
-                jagatudpot = self.pot/len(self.võitja[0]) #pot jagatud võitjate vahel
+                jagatudpot = self.pot/len(self.võitja[0]) #pot jagatud võitjate vahel                    
                 for võit in self.võitja[0]:
                     self.chipid[võit-1] += round(jagatudpot)
                 self.läbi = True
