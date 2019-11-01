@@ -159,6 +159,13 @@ class pokkeriPõhi:
     def pokkeriKordus(self):
         while True:
             self.aken.fill((0,0,0))
+
+            if self.kellekäik in self.folditud: #kui mängija on foldinud siis minnakse temast üle
+
+                    self.kellekäik+=1
+                    if self.kellekäik == self.mängijatearv:
+                        self.kk = True
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -172,6 +179,7 @@ class pokkeriPõhi:
                                 self.kellekäik +=1
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
                                 self.kk = True
+                                self.kellekäik = 0
                             
                     if event.key == pygame.K_f:
                         if not self.läbi and self.kellekäik not in self.folditud:
@@ -179,6 +187,7 @@ class pokkeriPõhi:
                             self.kellekäik +=1
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
                                 self.kk = True
+                                self.kellekäik = 0
                         
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
@@ -221,8 +230,7 @@ class pokkeriPõhi:
                     self.chipid[võit-1] += round(jagatudpot)
                 self.läbi = True
 
-            if self.kellekäik in self.folditud: #kui mängija on foldinud siis minnakse temast üle
-                self.kellekäik +=1
+            
 
             if len(self.mängijad)-1 <= len(self.folditud): #kui foldinud on kõik peale ühe, siis see viimane võidab
                 self.flop = True
