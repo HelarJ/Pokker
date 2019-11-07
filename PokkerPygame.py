@@ -24,18 +24,20 @@ class pokkeriPõhi:
             self.kaardipildid[knimi] = kaart #Laeb kõik pildid juba mällu et mäng toimuks kiiremini ja programm kasutaks vähem resursse
 
 
-        self.mängijatearv = 2
+        self.mängijatearv = 8
         self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
         self.chipikohad = [(350,140), (350,580), (10,330), (730,330), (10,140), (10,580), (730, 140), (730,580)]
         self.chipid = [5000]*self.mängijatearv
         self.pot = 0
-        self.panustatud = 0
        
         #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
         self.flop, self.turn, self.river, self.kk, self.läbi, self.aktiivne = False,False,False,False,False,False
+        self.liigamadal = False
         self.bet = ''
         self.bet_int = 0
+        self.uued_käigud = []
+        self.panused = [0] * self.mängijatearv
         self.kellekäik = 0
         self.folditud = []
         self.uued = self.kaardid.copy()
@@ -94,6 +96,8 @@ class pokkeriPõhi:
             self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (250,400))
         if self.aktiivne:
             self.aken.blit(self.font.render(self.bet, True, (255, 255, 255), (25,100,0)), (305,365))
+        if self.liigamadal:
+            self.aken.blit(self.font.render("Panus on liiga madal.", True, (255, 255, 255), (25,100,0)), (305,315))
             
         self.aken.blit(self.font.render("Uus mäng", True, (255, 255, 255), (25,100,0)), (780,10))
         
@@ -157,17 +161,30 @@ class pokkeriPõhi:
 
         print("võitja", uusvõitja)
         self.võitja = uusvõitja
-        
+    
+    def kontrolli_lõppu(self): #false kui veel vaja käia, true kui kõikide panused on võrdsed
+        self.uued_käigud = []
+        for i in range(len(self.panused)):
+            if self.panused[i] != max(self.panused):
+                self.uued_käigud.append(i)
+        print(self.panused)
+        print(self.uued_käigud)
+        if len(self.uued_käigud)>0:
+            return False
+        else:
+            return True
             
     def pokkeriKordus(self):
         while True:
             self.aken.fill((25,100,0))
             värv = (255, 255, 255) if self.aktiivne else (0, 0, 0)
 
-            if self.kellekäik in self.folditud: #kui mängija on foldinud siis minnakse temast üle
+            if self.kellekäik in self.folditud and self.kellekäik not in self.uued_käigud: #kui mängija on foldinud või ei pea uuesti käima
                     self.kellekäik+=1
                     if self.kellekäik == self.mängijatearv:
-                        self.kk = True
+                        if kontrolli_lõppu():
+                            self.kk = True
+                        self.kellekäik = 0
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -178,56 +195,80 @@ class pokkeriPõhi:
                     if self.aktiivne:
                         if event.key == pygame.K_RETURN:
                             self.aktiivne = False
-                            self.bet_int = int(self.bet)
-                            self.bet = ''
+                            try: 
+                                self.bet_int = int(self.bet) #üritab sisestatud panust numbriks muuta
+                                self.bet = ""
+                            except:                          #kui see ei toiminud siis tühjendab panuse ning küsib panuse uuesti.        
+                                self.bet = ''
+                                continue 
                         elif event.key == pygame.K_BACKSPACE:
                             self.bet = self.bet[:-1]
                         else:
                             self.bet += event.unicode
+                    else: #saab enterit vajutades panuse kasti aktiivseks teha
+                        if event.key == pygame.K_RETURN:
+                            self.aktiivne = True
 
 
-                    if event.key == pygame.K_r:
-                        if not self.läbi and self.kellekäik not in self.folditud and self.bet_int > 0: #nuppu saab vajutada ainult see kes pole juba foldinud
+                    if event.key == pygame.K_r and not self.aktiivne:
+                        if not self.läbi and self.kellekäik not in self.folditud and self.bet_int >= max(self.panused):  #ainult siis kui panus on võrdne või kõrgem eelmisest kõrgeimast panusest
                             if self.chipid[self.kellekäik] >= self.bet_int: #kui mängijal on piisavalt chippe
                                 self.chipid[self.kellekäik] -= self.bet_int #võetakse mängijalt need ära
-                                self.panustatud += self.bet_int                    #ja lisatakse potti
+                                self.liigamadal = False
+                                self.panused[self.kellekäik] = self.bet_int
                                 self.kellekäik += 1
+                        elif self.bet_int < max(self.panused):
+                            self.liigamadal = True #errori ekraanile näitamiseks
+
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
-                                self.kk = True
+                                if self.kontrolli_lõppu():
+                                    self.kk = True
+                                    self.pot += sum(self.panused) #lisab potti panuste summa
+                                    self.panused = [0] * self.mängijatearv #tühjendab panustelisti
+
                                 self.kellekäik = 0
-                                self.pot += self.panustatud
-                                self.panustatud = 0
+                                self.bet_int = 0
                                 
                             
-                    if event.key == pygame.K_f:
+                    if event.key == pygame.K_f and not self.aktiivne:
                         if not self.läbi and self.kellekäik not in self.folditud:
                             self.folditud.append(self.kellekäik)
+                            self.liigamadal = False
                             self.kellekäik +=1
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
-                            self.kk = True
+                            if self.kontrolli_lõppu():
+                                self.kk = True
+                                self.pot += sum(self.panused) #lisab potti panuste summa
+                                self.panused = [0] * self.mängijatearv #tühjendab panustelisti
+
                             self.kellekäik = 0
-                            self.pot += self.panustatud
-                            self.panustatud = 0
+                            self.bet_int = 0
                             
                     
-                    if event.key == pygame.K_c:
-                        if not self.läbi and self.kellekäik not in self.folditud and self.panustatud == 0:
+                    if event.key == pygame.K_c and not self.aktiivne:
+                        if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) == 0:
                             self.kellekäik += 1
-                        if not self.läbi and self.kellekäik not in self.folditud and self.panustatud > 0:
-                            self.chipid[self.kellekäik] -= self.bet_int
-                            self.panustatud += self.bet_int
+                        if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) > 0:
+                            self.chipid[self.kellekäik] -= max(self.panused)
+                            self.panused[self.kellekäik] = max(self.panused)
+                            self.liigamadal = False
                             self.kellekäik += 1
+                            
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud                            
-                            self.kk = True
+                            if self.kontrolli_lõppu():
+                                self.kk = True
+                                self.pot += sum(self.panused) #lisab potti panuste summa
+                                self.panused = [0] * self.mängijatearv #tühjendab panustelisti
+
                             self.kellekäik = 0
-                            self.pot += self.panustatud
-                            self.panustatud = 0
+                            self.bet_int = 0
                             
                         
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
                         self.mängijad, self.laud, self.tugevused, self.võitja, self.folditud = [],[],[],[],[]
                         self.flop, self.turn, self.river,self.kk, self.läbi, self.aktiivne = False,False,False,False,False,False
+                        self.uued_käigud = False
                         self.bet = ''
                         self.bet_int = 0
                         self.kellekäik = 0
@@ -252,18 +293,22 @@ class pokkeriPõhi:
             if not self.flop and self.kk:
                 self.flop = True
                 self.kk = False
+                self.uued_käigud = []
                 self.kellekäik = 0
             elif self.flop and not self.turn and self.kk:
                 self.turn = True
                 self.kk = False
+                self.uued_käigud = []
                 self.kellekäik = 0
                 
             elif self.flop and self.turn and not self.river and self.kk:
                 self.river = True
                 self.kk = False
+                self.uued_käigud = []
                 self.kellekäik = 0
                 
             elif self.flop and self.turn and self.river and self.kk and not self.läbi:
+                self.uued_käigud = []
                 self.leia_võitja()
                 jagatudpot = self.pot/len(self.võitja[0]) #pot jagatud võitjate vahel                    
                 for võit in self.võitja[0]:
