@@ -172,6 +172,8 @@ class pokkeriPõhi:
         if len(self.uued_käigud)>0:
             return False
         else:
+            for i in range(len(self.mängijad)):
+                self.chipid[i]-= self.panused[i]
             return True
             
     def pokkeriKordus(self):
@@ -212,11 +214,9 @@ class pokkeriPõhi:
 
                     if event.key == pygame.K_r and not self.aktiivne:
                         if not self.läbi and self.kellekäik not in self.folditud and self.bet_int >= max(self.panused):  #ainult siis kui panus on võrdne või kõrgem eelmisest kõrgeimast panusest
-                            if self.chipid[self.kellekäik] >= self.bet_int: #kui mängijal on piisavalt chippe
-                                self.chipid[self.kellekäik] -= self.bet_int #võetakse mängijalt need ära
-                                self.liigamadal = False
-                                self.panused[self.kellekäik] = self.bet_int
-                                self.kellekäik += 1
+                            self.liigamadal = False
+                            self.panused[self.kellekäik] = self.bet_int
+                            self.kellekäik += 1
                         elif self.bet_int < max(self.panused):
                             self.liigamadal = True #errori ekraanile näitamiseks
 
@@ -249,7 +249,6 @@ class pokkeriPõhi:
                         if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) == 0:
                             self.kellekäik += 1
                         if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) > 0:
-                            self.chipid[self.kellekäik] -= max(self.panused)
                             self.panused[self.kellekäik] = max(self.panused)
                             self.liigamadal = False
                             self.kellekäik += 1
