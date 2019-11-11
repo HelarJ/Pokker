@@ -165,15 +165,18 @@ class pokkeriPõhi:
     def kontrolli_lõppu(self): #false kui veel vaja käia, true kui kõikide panused on võrdsed
         self.uued_käigud = []
         for i in range(len(self.panused)):
-            if self.panused[i] != max(self.panused):
+            if self.panused[i] != max(self.panused) and i not in self.folditud: #kui panus pole piisavalt kõrge ja mängija pole foldinud
                 self.uued_käigud.append(i)
         print(self.panused)
-        print(self.uued_käigud)
+        #print(self.uued_käigud)
         if len(self.uued_käigud)>0:
+            self.kellekäik = 0
             return False
         else:
             for i in range(len(self.mängijad)):
                 self.chipid[i]-= self.panused[i]
+            self.pot += sum(self.panused)
+            self.panused = 0
             return True
             
     def pokkeriKordus(self):
@@ -181,10 +184,10 @@ class pokkeriPõhi:
             self.aken.fill((25,100,0))
             värv = (255, 255, 255) if self.aktiivne else (0, 0, 0)
 
-            if self.kellekäik in self.folditud and self.kellekäik not in self.uued_käigud: #kui mängija on foldinud või ei pea uuesti käima
+            if self.kellekäik in self.folditud or (self.kellekäik not in self.uued_käigud and len(self.uued_käigud)>0): #kui mängija on foldinud või ei pea uuesti käima
                     self.kellekäik+=1
                     if self.kellekäik == self.mängijatearv:
-                        if kontrolli_lõppu():
+                        if self.kontrolli_lõppu():
                             self.kk = True
                         self.kellekäik = 0
 
@@ -223,7 +226,6 @@ class pokkeriPõhi:
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
                                 if self.kontrolli_lõppu():
                                     self.kk = True
-                                    self.pot += sum(self.panused) #lisab potti panuste summa
                                     self.panused = [0] * self.mängijatearv #tühjendab panustelisti
 
                                 self.kellekäik = 0
@@ -238,7 +240,6 @@ class pokkeriPõhi:
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
                             if self.kontrolli_lõppu():
                                 self.kk = True
-                                self.pot += sum(self.panused) #lisab potti panuste summa
                                 self.panused = [0] * self.mängijatearv #tühjendab panustelisti
 
                             self.kellekäik = 0
@@ -256,7 +257,6 @@ class pokkeriPõhi:
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud                            
                             if self.kontrolli_lõppu():
                                 self.kk = True
-                                self.pot += sum(self.panused) #lisab potti panuste summa
                                 self.panused = [0] * self.mängijatearv #tühjendab panustelisti
 
                             self.kellekäik = 0
@@ -309,7 +309,9 @@ class pokkeriPõhi:
             elif self.flop and self.turn and self.river and self.kk and not self.läbi:
                 self.uued_käigud = []
                 self.leia_võitja()
-                jagatudpot = self.pot/len(self.võitja[0]) #pot jagatud võitjate vahel                    
+                
+                jagatudpot = self.pot/len(self.võitja[0]) #pot jagatud võitjate vahel
+                print(jagatudpot)                    
                 for võit in self.võitja[0]:
                     self.chipid[võit-1] += round(jagatudpot)
                 self.läbi = True
