@@ -25,8 +25,9 @@ class pokkeriPõhi:
 
 
         self.mängijatearv = 8
-        self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730,450)]
+        self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730, 450)]
         self.chipikohad = [(350,140), (350,580), (10,330), (730,330), (10,140), (10,580), (730, 140), (730,580)]
+        self.panuseKohad = [(400,140), (400,580), (60,330), (790,330), (60,140), (60,580), (790, 140), (790,580)]
         self.chipid = [5000]*self.mängijatearv
         self.pot = 0
        
@@ -85,8 +86,15 @@ class pokkeriPõhi:
                 chipistr = str(self.chipid[i]) + "[F]"
             else:
                 chipistr = str(self.chipid[i])
+            if self.panused[i] != 0:
+                panusestr = str(self.panused[i])
+                self.aken.blit(pygame.font.SysFont('arial', 25).render(panusestr, True, (10, 10, 10), (200, 200, 200)),self.panuseKohad[i])
             self.aken.blit(pygame.font.SysFont('arial', 25).render(chipistr, True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
-        
+
+        if self.pot != 0:
+            potStr = "Pot " + str(self.pot)
+            self.aken.blit(pygame.font.SysFont('arial', 25).render(potStr, True, (10, 10, 10), (200, 200, 200)), (200, 360))
+
         if self.läbi:
             võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ self.võitja[1][0]
             self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
@@ -169,12 +177,12 @@ class pokkeriPõhi:
                 self.uued_käigud.append(i)
         print(self.panused)
         #print(self.uued_käigud)
-        if len(self.uued_käigud)>0:
+        if len(self.uued_käigud) > 0:
             self.kellekäik = 0
             return False
         else:
             for i in range(len(self.mängijad)):
-                self.chipid[i]-= self.panused[i]
+                self.chipid[i] -= self.panused[i]
             self.pot += sum(self.panused)
             self.panused = 0
             return True
@@ -184,8 +192,8 @@ class pokkeriPõhi:
             self.aken.fill((25,100,0))
             värv = (255, 255, 255) if self.aktiivne else (0, 0, 0)
 
-            if self.kellekäik in self.folditud or (self.kellekäik not in self.uued_käigud and len(self.uued_käigud)>0): #kui mängija on foldinud või ei pea uuesti käima
-                    self.kellekäik+=1
+            if self.kellekäik in self.folditud or (self.kellekäik not in self.uued_käigud and len(self.uued_käigud) > 0): #kui mängija on foldinud või ei pea uuesti käima
+                    self.kellekäik += 1
                     if self.kellekäik == self.mängijatearv:
                         if self.kontrolli_lõppu():
                             self.kk = True
@@ -267,7 +275,7 @@ class pokkeriPõhi:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
                         self.mängijad, self.laud, self.tugevused, self.võitja, self.folditud = [],[],[],[],[]
                         self.flop, self.turn, self.river,self.kk, self.läbi, self.aktiivne = False,False,False,False,False,False
-                        self.uued_käigud = False
+                        self.uued_käigud = []
                         self.bet = ''
                         self.bet_int = 0
                         self.kellekäik = 0
