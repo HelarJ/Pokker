@@ -33,7 +33,7 @@ class pokkeriPõhi:
        
         #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
-        self.flop, self.turn, self.river, self.kk, self.läbi, self.aktiivne = False,False,False,False,False,False
+        self.flop, self.turn, self.river, self.kk, self.läbi, self.aktiivne, = False,False,False,False,False,False
         self.liigamadal = False
         self.bet = ''
         self.bet_int = 0
@@ -100,8 +100,14 @@ class pokkeriPõhi:
             self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
         
         if not self.läbi: #joonistab ainult siis kui mäng veel lõppenud pole
-            mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] Panusta " + str(self.bet_int) + ", [F] Fold, [C] Check/Call"
-            self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (250,400))
+            if self.bet_int > max(self.panused):
+                panuseSumma = "Panusta " + str(self.bet_int)
+            else:
+                panuseSumma = "Panusta " + str(max(self.panused))
+            if panuseSumma[-2:] == " 0":
+                panuseSumma = "Määra panus [Enter]"
+            mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] " + panuseSumma + ", [F] Fold, [C] Check/Call"
+            self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (150,400))
         if self.aktiivne:
             self.aken.blit(self.font.render(self.bet, True, (255, 255, 255), (25,100,0)), (305,365))
         if self.liigamadal:
@@ -184,7 +190,7 @@ class pokkeriPõhi:
             for i in range(len(self.mängijad)):
                 self.chipid[i] -= self.panused[i]
             self.pot += sum(self.panused)
-            self.panused = 0
+            self.panused = [0] * self.mängijatearv
             return True
             
     def pokkeriKordus(self):
