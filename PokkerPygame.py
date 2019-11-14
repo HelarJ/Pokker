@@ -22,6 +22,10 @@ class pokkeriPõhi:
             kaart = pygame.image.load("Kaardid/"+knimi+".png")
             kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
             self.kaardipildid[knimi] = kaart #Laeb kõik pildid juba mällu et mäng toimuks kiiremini ja programm kasutaks vähem resursse
+        kaart = pygame.image.load("Kaardid/T.png")
+        kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
+        self.kaardipildid["T"] = kaart
+
 
 
         self.mängijatearv = 8
@@ -31,7 +35,12 @@ class pokkeriPõhi:
         self.chipid = [5000]*self.mängijatearv
         self.pot = 0
        
-        #Järgmised read vaja muuta uuesti False, et jagada uued kaardid 
+        self.tühi_plats()
+        
+        
+        self.font = pygame.font.SysFont('arial', 32) 
+
+    def tühi_plats(self): #teeb tühjad järjendid, väärtused et saaks alustada uut mängu.
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
         self.flop, self.turn, self.river, self.kk, self.läbi, self.aktiivne, = False,False,False,False,False,False
         self.liigamadal = False
@@ -42,9 +51,7 @@ class pokkeriPõhi:
         self.kellekäik = 0
         self.folditud = []
         self.uued = self.kaardid.copy()
-        
-        self.font = pygame.font.SysFont('arial', 32) 
-            
+
     def joonista_kaardid(self):
         for i in range(len(self.mängijad)):
             j = 0
@@ -218,7 +225,7 @@ class pokkeriPõhi:
                                 self.bet_int = int(self.bet) #üritab sisestatud panust numbriks muuta
                                 self.bet = ""
                             except:                          #kui see ei toiminud siis tühjendab panuse ning küsib panuse uuesti.        
-                                self.bet = ''
+                                self.bet = ""
                                 continue 
                         elif event.key == pygame.K_BACKSPACE:
                             self.bet = self.bet[:-1]
@@ -249,6 +256,7 @@ class pokkeriPõhi:
                     if event.key == pygame.K_f and not self.aktiivne:
                         if not self.läbi and self.kellekäik not in self.folditud:
                             self.folditud.append(self.kellekäik)
+                            self.mängijad[self.kellekäik] = ["T", "T"]
                             self.liigamadal = False
                             self.kellekäik +=1
                         if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
@@ -279,14 +287,7 @@ class pokkeriPõhi:
                         
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
-                        self.mängijad, self.laud, self.tugevused, self.võitja, self.folditud = [],[],[],[],[]
-                        self.flop, self.turn, self.river,self.kk, self.läbi, self.aktiivne = False,False,False,False,False,False
-                        self.uued_käigud = []
-                        self.bet = ''
-                        self.bet_int = 0
-                        self.kellekäik = 0
-                        self.pot = 0
-                        self.uued = self.kaardid.copy()
+                        self.tühi_plats()
                     if pygame.mouse.get_pos()[0] in range(300,601) and pygame.mouse.get_pos()[1] in range(360,391):
                         self.aktiivne = True
                                     
