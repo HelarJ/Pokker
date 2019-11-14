@@ -16,7 +16,7 @@ class pokkeriPõhi:
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
                         '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
                         '2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥','A♥',
-                        '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠',]
+                        '2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠','A♠']
         self.kaardipildid = {}
         for knimi in self.kaardid:
             kaart = pygame.image.load("Kaardid/"+knimi+".png")
@@ -49,8 +49,12 @@ class pokkeriPõhi:
         self.uued_käigud = []
         self.panused = [0] * self.mängijatearv
         self.kellekäik = 0
+        self.pot = 0
         self.folditud = []
         self.uued = self.kaardid.copy()
+        for i in range(len(self.chipid)):
+            if self.chipid[i] == 0:
+                self.folditud.append(i)
 
     def joonista_kaardid(self):
         for i in range(len(self.mängijad)):
@@ -186,7 +190,7 @@ class pokkeriPõhi:
     def kontrolli_lõppu(self): #false kui veel vaja käia, true kui kõikide panused on võrdsed
         self.uued_käigud = []
         for i in range(len(self.panused)):
-            if self.panused[i] != max(self.panused) and i not in self.folditud: #kui panus pole piisavalt kõrge ja mängija pole foldinud
+            if self.panused[i] != max(self.panused) and i not in self.folditud and self.chipid[i] != 0: #kui panus pole piisavalt kõrge ja mängija pole foldinud
                 self.uued_käigud.append(i)
         print(self.panused)
         #print(self.uued_käigud)
@@ -205,7 +209,7 @@ class pokkeriPõhi:
             self.aken.fill((25,100,0))
             värv = (255, 255, 255) if self.aktiivne else (0, 0, 0)
 
-            if self.kellekäik in self.folditud or (self.kellekäik not in self.uued_käigud and len(self.uued_käigud) > 0): #kui mängija on foldinud või ei pea uuesti käima
+            if self.kellekäik in self.folditud or (self.kellekäik not in self.uued_käigud and len(self.uued_käigud) > 0) or self.chipid[self.kellekäik] == 0: #kui mängija on foldinud või ei pea uuesti käima
                     self.kellekäik += 1
                     if self.kellekäik == self.mängijatearv:
                         if self.kontrolli_lõppu():
@@ -239,7 +243,10 @@ class pokkeriPõhi:
                     if event.key == pygame.K_r and not self.aktiivne:
                         if not self.läbi and self.kellekäik not in self.folditud and self.bet_int >= max(self.panused):  #ainult siis kui panus on võrdne või kõrgem eelmisest kõrgeimast panusest
                             self.liigamadal = False
-                            self.panused[self.kellekäik] = self.bet_int
+                            if self.chipid[self.kellekäik] >= self.bet_int:
+                                self.panused[self.kellekäik] = self.bet_int
+                            else:
+                                self.panused[self.kellekäik] = self.chipid[self.kellekäik]
                             self.kellekäik += 1
                         elif self.bet_int < max(self.panused):
                             self.liigamadal = True #errori ekraanile näitamiseks
@@ -272,7 +279,8 @@ class pokkeriPõhi:
                         if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) == 0:
                             self.kellekäik += 1
                         if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) > 0:
-                            self.panused[self.kellekäik] = max(self.panused)
+
+                            self.panused[self.kellekäik] = min(max(self.panused), self.chipid[self.kellekäik])
                             self.liigamadal = False
                             self.kellekäik += 1
                             
