@@ -115,6 +115,8 @@ class pokkeriPõhi:
                 panuseSumma = "Panusta " + str(self.bet_int)
             else:
                 panuseSumma = "Panusta " + str(max(self.panused))
+                self.bet_int = int(max(self.panused))
+
             if panuseSumma[-2:] == " 0":
                 panuseSumma = "Määra panus [Enter]"
             mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] " + panuseSumma + ", [F] Fold, [C] Check/Call"
