@@ -8,9 +8,9 @@ from sys import exit
 class pokkeriPõhi:
     def __init__(self):
         pygame.init()
-        ekraani_laius = 1400
+        ekraani_laius = 1200
         self.lü = ekraani_laius/100 #laiuseühik
-        ekraani_kõrgus = 700
+        ekraani_kõrgus = 600
         self.kü = ekraani_kõrgus/100 #kõrguseühik
         self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus), pygame.RESIZABLE)
         self.fpsKell = pygame.time.Clock()
@@ -21,16 +21,14 @@ class pokkeriPõhi:
         self.kaardipildid = {}
         for knimi in self.kaardid:
             kaart = pygame.image.load("Kaardid/"+knimi+".png")
-            kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
             self.kaardipildid[knimi] = kaart #Laeb kõik pildid juba mällu et mäng toimuks kiiremini ja programm kasutaks vähem resursse
         kaart = pygame.image.load("Kaardid/T.png")
-        kaart = pygame.transform.rotozoom(kaart, 0, 0.1)
         self.kaardipildid["T"] = kaart
 
 
 
-        self.mängijatearv = 5
-        self.algasukohad, self.chipikohad, self.panusekohad = [],[],[]
+        self.mängijatearv = 8
+        self.algasukohad, self.chipikohad, self.panusekohad = [(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv
         self.arvuta_koordinaadid()
         self.chipid = [5000]*self.mängijatearv
         self.pot = 0
@@ -38,7 +36,7 @@ class pokkeriPõhi:
         self.tühi_plats()
         
         
-        self.font = pygame.font.SysFont('arial', 32) 
+        self.font = pygame.font.SysFont('arial', int(self.lü * 2.2))
 
     def tühi_plats(self): #teeb tühjad järjendid, väärtused et saaks alustada uut mängu.
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
@@ -57,16 +55,16 @@ class pokkeriPõhi:
                 self.folditud.append(i)
 
     def arvuta_koordinaadid(self):
-        r = self.lü*20
-        x0 = self.lü*40
-        y0 = self.kü*35
+        r = self.lü*19
+        x0 = self.lü*45
+        y0 = self.kü*39
         nurk = 360/self.mängijatearv
         for i in range(self.mängijatearv):
-            x = r * 2* math.cos((i * nurk +90) * math.pi/180)
+            x = r * 2.3* math.cos((i * nurk +90) * math.pi/180)
             y = r * math.sin((i * nurk +90) * math.pi/180)
-            self.algasukohad.append((x0+x, y0+y))
-            self.chipikohad.append((x0+x, y0+y+130))
-            self.panusekohad.append((x0+x +50, y0+y+130))
+            self.algasukohad[i]= (x0+x, y0+y)
+            self.chipikohad[i]= (x0+x, y0+y+self.kü*19)
+            self.panusekohad[i]= (x0+x +self.lü*4, y0+y+self.kü*19)
 
 
     def joonista_kaardid(self):
@@ -74,6 +72,7 @@ class pokkeriPõhi:
             j = 0
             for knimi in self.mängijad[i]:
                 kaart = self.kaardipildid[knimi]
+                kaart = pygame.transform.rotozoom(kaart, 0, self.lü / 135)
                 self.aken.blit(kaart, (self.algasukohad[i][0]+j, self.algasukohad[i][1]))
                 j+=55
 
@@ -90,20 +89,20 @@ class pokkeriPõhi:
         i = 0
         for knimi in kaardid:
             kaart = self.kaardipildid[knimi]
-            self.aken.blit(kaart, (i+200, 225))
-            i += 115
+            self.aken.blit(kaart, (i+(self.lü * 28), self.kü * 37))
+            i += self.lü*9
     
     def joonista_turn(self):
         kaart = self.kaardipildid[self.laud[3]]
-        self.aken.blit(kaart, (545, 225))
+        self.aken.blit(kaart, (self.lü*9*3 + self.lü * 28, self.kü * 37))
     
     def joonista_river(self):
         kaart = self.kaardipildid[self.laud[4]]
-        self.aken.blit(kaart, (657, 225))
+        self.aken.blit(kaart, (self.lü*9*4 + self.lü * 28, self.kü * 37))
 
     def joonista_tekst(self):
         for i in range(self.mängijatearv): #joonistab numbrid kaartide peale
-            self.aken.blit(pygame.font.SysFont('arial', 52).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
+            self.aken.blit(pygame.font.SysFont('arial', int(self.lü *3)).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
         
         for i in range(self.mängijatearv): #joonistab mängija kaartide alla chippide arvu ning info selle kohta kas nad on foldinud
             if i in self.folditud:
@@ -112,8 +111,8 @@ class pokkeriPõhi:
                 chipistr = str(self.chipid[i])
             if self.panused[i] != 0:
                 panusestr = str(self.panused[i])
-                self.aken.blit(pygame.font.SysFont('arial', 25).render(panusestr, True, (10, 10, 10), (200, 200, 200)),self.panusekohad[i])
-            self.aken.blit(pygame.font.SysFont('arial', 25).render(chipistr, True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
+                self.aken.blit(pygame.font.SysFont('arial', int(self.lü * 1.9)).render(panusestr, True, (10, 10, 10), (200, 200, 200)),self.panusekohad[i])
+            self.aken.blit(pygame.font.SysFont('arial', int(self.lü * 1.9)).render(chipistr, True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
 
         if self.pot != 0:
             potStr = "Pot " + str(self.pot)
@@ -121,7 +120,7 @@ class pokkeriPõhi:
 
         if self.läbi:
             võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ self.võitja[1][0]
-            self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (250,150))
+            self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (self.lü * 20, self.kü *60))
         
         if not self.läbi: #joonistab ainult siis kui mäng veel lõppenud pole
             if self.bet_int > max(self.panused):
@@ -133,13 +132,13 @@ class pokkeriPõhi:
             if panuseSumma[-2:] == " 0":
                 panuseSumma = "Määra panus [Enter]"
             mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] " + panuseSumma + ", [F] Fold, [C] Check/Call"
-            self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (150,400))
+            self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (self.lü * 26, self.kü * 67))
         if self.aktiivne:
-            self.aken.blit(self.font.render(self.bet, True, (255, 255, 255), (25,100,0)), (305,365))
+            self.aken.blit(self.font.render(self.bet, True, (255, 255, 255), (25,100,0)), (self.lü*41,self.kü*61))
         if self.liigamadal:
-            self.aken.blit(self.font.render("Panus on liiga madal.", True, (255, 255, 255), (25,100,0)), (305,315))
+            self.aken.blit(self.font.render("Panus on liiga madal.", True, (255, 255, 255), (25,100,0)), (self.lü*25,self.kü*52))
             
-        self.aken.blit(self.font.render("Uus mäng", True, (255, 255, 255), (25,100,0)), (780,10))
+        self.aken.blit(self.font.render("Uus mäng", True, (255, 255, 255), (25,100,0)), (5, 5))
         
 
     def käsi(self):
@@ -309,11 +308,18 @@ class pokkeriPõhi:
                             
                         
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    if pygame.mouse.get_pos()[0] in range(770,900) and pygame.mouse.get_pos()[1] in range(0,40):
+                    if pygame.mouse.get_pos()[0] in range(0, 130) and pygame.mouse.get_pos()[1] in range(0,40):
                         self.tühi_plats()
                     if pygame.mouse.get_pos()[0] in range(300,601) and pygame.mouse.get_pos()[1] in range(360,391):
                         self.aktiivne = True
-                                    
+
+                elif event.type == pygame.VIDEORESIZE:
+                    ekraani_laius, ekraani_kõrgus = event.size[0], event.size[1]
+                    self.aken = pygame.display.set_mode((ekraani_laius, ekraani_kõrgus), pygame.RESIZABLE)
+                    self.lü = ekraani_laius / 100
+                    self.kü = ekraani_kõrgus / 100
+                    self.arvuta_koordinaadid()
+
             
             if not self.mängijad:
                 self.mängijad = self.loo_mängijad()
@@ -360,7 +366,7 @@ class pokkeriPõhi:
                 self.kk = True
                 
             if self.mängijad:
-                pygame.draw.rect(self.aken, värv, (300, 360, 300, 30), 2)
+                pygame.draw.rect(self.aken, värv, (self.lü * 40, self.kü * 60, self.lü* 25, self.kü*7), 2)
                 
             self.joonista_tekst()
             pygame.display.update()
