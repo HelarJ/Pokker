@@ -2,16 +2,17 @@ import pygame
 import random
 import pokker
 import itertools
+import math
 from sys import exit
 
 class pokkeriPõhi:
     def __init__(self):
         pygame.init()
-        ekraani_laius = 900
+        ekraani_laius = 1400
         self.lü = ekraani_laius/100 #laiuseühik
-        ekraani_kõrgus = 600
+        ekraani_kõrgus = 700
         self.kü = ekraani_kõrgus/100 #kõrguseühik
-        self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus))
+        self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus), pygame.RESIZABLE)
         self.fpsKell = pygame.time.Clock()
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
                         '2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦','A♦',
@@ -28,10 +29,9 @@ class pokkeriPõhi:
 
 
 
-        self.mängijatearv = 8
-        self.algasukohad = [(350,10), (350,450), (10,200), (730,200), (10,10), (10,450), (730, 10), (730, 450)]
-        self.chipikohad = [(350,140), (350,580), (10,330), (730,330), (10,140), (10,580), (730, 140), (730,580)]
-        self.panuseKohad = [(400,140), (400,580), (60,330), (790,330), (60,140), (60,580), (790, 140), (790,580)]
+        self.mängijatearv = 5
+        self.algasukohad, self.chipikohad, self.panusekohad = [],[],[]
+        self.arvuta_koordinaadid()
         self.chipid = [5000]*self.mängijatearv
         self.pot = 0
        
@@ -55,6 +55,19 @@ class pokkeriPõhi:
         for i in range(len(self.chipid)):
             if self.chipid[i] == 0:
                 self.folditud.append(i)
+
+    def arvuta_koordinaadid(self):
+        r = self.lü*20
+        x0 = self.lü*40
+        y0 = self.kü*35
+        nurk = 360/self.mängijatearv
+        for i in range(self.mängijatearv):
+            x = r * 2* math.cos((i * nurk +90) * math.pi/180)
+            y = r * math.sin((i * nurk +90) * math.pi/180)
+            self.algasukohad.append((x0+x, y0+y))
+            self.chipikohad.append((x0+x, y0+y+130))
+            self.panusekohad.append((x0+x +50, y0+y+130))
+
 
     def joonista_kaardid(self):
         for i in range(len(self.mängijad)):
@@ -99,7 +112,7 @@ class pokkeriPõhi:
                 chipistr = str(self.chipid[i])
             if self.panused[i] != 0:
                 panusestr = str(self.panused[i])
-                self.aken.blit(pygame.font.SysFont('arial', 25).render(panusestr, True, (10, 10, 10), (200, 200, 200)),self.panuseKohad[i])
+                self.aken.blit(pygame.font.SysFont('arial', 25).render(panusestr, True, (10, 10, 10), (200, 200, 200)),self.panusekohad[i])
             self.aken.blit(pygame.font.SysFont('arial', 25).render(chipistr, True, (10, 10, 10), (200,200,200)), self.chipikohad[i])
 
         if self.pot != 0:
