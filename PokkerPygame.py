@@ -37,7 +37,7 @@ class pokkeriPõhi:
         self.tühi_plats()
         
         
-        self.font = pygame.font.SysFont('arial', int(self.lü * 2.2))
+        self.font = pygame.font.SysFont('arial', int(self.lü * 2.1))
 
     def tühi_plats(self): #teeb tühjad järjendid, väärtused et saaks alustada uut mängu.
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
@@ -105,6 +105,7 @@ class pokkeriPõhi:
         self.aken.blit(kaart, (self.lü*9*4 + self.lü * 28, self.kü * 37))
 
     def joonista_tekst(self):
+        self.font = pygame.font.SysFont('arial', int(self.lü * 2.1))
         for i in range(self.mängijatearv): #joonistab numbrid kaartide peale
             self.aken.blit(pygame.font.SysFont('arial', int(self.lü *3)).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
         
@@ -136,7 +137,7 @@ class pokkeriPõhi:
             if panuseSumma[-2:] == " 0":
                 panuseSumma = "Määra panus [Enter]"
             mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] " + panuseSumma + ", [F] Fold, [C] Check/Call"
-            self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255)), (self.lü * 26, self.kü * 67))
+            self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255), (25,100,0)), (self.lü * 31, self.kü * 69))
         if self.aktiivne:
             self.aken.blit(self.font.render(self.bet, True, (255, 255, 255), (25,100,0)), (self.lü*41,self.kü*61))
         if self.liigamadal:
@@ -315,7 +316,7 @@ class pokkeriPõhi:
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(0, 130) and pygame.mouse.get_pos()[1] in range(0,40):
                         self.tühi_plats()
-                    if pygame.mouse.get_pos()[0] in range(300,601) and pygame.mouse.get_pos()[1] in range(360,391):
+                    if pygame.mouse.get_pos()[0] in range(int(self.lü * 40), int(self.lü * 65)) and pygame.mouse.get_pos()[1] in range(int(self.kü * 60), int(self.kü * 67)):
                         self.aktiivne = True
 
                 elif event.type == pygame.VIDEORESIZE:
@@ -326,6 +327,7 @@ class pokkeriPõhi:
                     self.arvuta_koordinaadid()
 
             
+
             if not self.mängijad:
                 self.mängijad = self.loo_mängijad()
                 print("mängijad",self.mängijad)
