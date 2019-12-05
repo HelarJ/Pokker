@@ -11,7 +11,8 @@ class pokkeriPõhi:
         ekraani_laius = 1200
         self.lü = ekraani_laius/100 #laiuseühik
         ekraani_kõrgus = 600
-        self.kü = ekraani_kõrgus/100 #kõrguseühik
+        #16:9
+        self.kü = 16*self.lü/9
         self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus), pygame.RESIZABLE)
         self.fpsKell = pygame.time.Clock()
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
@@ -89,15 +90,18 @@ class pokkeriPõhi:
         i = 0
         for knimi in kaardid:
             kaart = self.kaardipildid[knimi]
+            kaart = pygame.transform.rotozoom(kaart, 0, self.lü / 135)
             self.aken.blit(kaart, (i+(self.lü * 28), self.kü * 37))
             i += self.lü*9
     
     def joonista_turn(self):
         kaart = self.kaardipildid[self.laud[3]]
+        kaart = pygame.transform.rotozoom(kaart, 0, self.lü / 135)
         self.aken.blit(kaart, (self.lü*9*3 + self.lü * 28, self.kü * 37))
     
     def joonista_river(self):
         kaart = self.kaardipildid[self.laud[4]]
+        kaart = pygame.transform.rotozoom(kaart, 0, self.lü / 135)
         self.aken.blit(kaart, (self.lü*9*4 + self.lü * 28, self.kü * 37))
 
     def joonista_tekst(self):
