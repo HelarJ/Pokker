@@ -176,7 +176,8 @@ class pokkeriPõhi:
             if uustugevus[1] > tugevus:
                 tugevus = uustugevus[1]
                 parim = uustugevus[0]
-        print("Mängija", parim, tugevus)
+                käsi = uustugevus[2]
+        print("Mängija", parim, tugevus, käsi)
         return (parim, tugevus)
     
     def loo_mängijad(self):

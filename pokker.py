@@ -26,7 +26,7 @@ def kaks_paari(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k4[:-1] in k5[:-1]:
         return tee_numbriks(k4)/100 + tee_numbriks(k1)/10000 + tee_numbriks(k3)/1000000
     if k2[:-1] in k3[:-1] and k4[:-1] in k5[:-1]:
-        return tee_numbriks(k4)/100 + tee_numbriks(k1)/10000 + tee_numbriks(k4)/1000000
+        return tee_numbriks(k4)/100 + tee_numbriks(k2)/10000 + tee_numbriks(k1)/1000000
     
 def kolmik(k1, k2, k3, k4, k5):
     if k1[:-1] in k2[:-1] and k1[:-1] in k3[:-1]:
@@ -124,4 +124,4 @@ def käsi(k1, k2, k3, k4, k5):
             parim = "Kuninglik mastirida"
             tugevus = 9.0
         
-    return (parim, tugevus)
+    return (parim, tugevus, s)
