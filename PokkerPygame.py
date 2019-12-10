@@ -8,11 +8,10 @@ from sys import exit
 class pokkeriPõhi:
     def __init__(self):
         pygame.init()
-        ekraani_laius = 1200
+        ekraani_laius = 1280
         self.lü = ekraani_laius/100 #laiuseühik
-        ekraani_kõrgus = 600
-        #16:9
-        self.kü = 16*self.lü/9
+        ekraani_kõrgus = 680
+        self.kü = (ekraani_laius/1.87)/100
         self.aken = pygame.display.set_mode((ekraani_laius,ekraani_kõrgus), pygame.RESIZABLE)
         self.fpsKell = pygame.time.Clock()
         self.kaardid = ['2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣','A♣',
@@ -28,11 +27,10 @@ class pokkeriPõhi:
 
 
 
-        self.mängijatearv = 8
+        self.mängijatearv = 23
         self.algasukohad, self.chipikohad, self.panusekohad = [(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv
         self.arvuta_koordinaadid()
         self.chipid = [5000]*self.mängijatearv
-        self.pot = 0
        
         self.tühi_plats()
         
@@ -49,7 +47,9 @@ class pokkeriPõhi:
         self.panused = [0] * self.mängijatearv
         self.kellekäik = 0
         self.pot = 0
+        self.sidepotid = []
         self.folditud = []
+        self.allin = []
         self.uued = self.kaardid.copy()
         for i in range(len(self.chipid)):
             if self.chipid[i] == 0:
@@ -64,8 +64,8 @@ class pokkeriPõhi:
             x = r * 2.3* math.cos((i * nurk +90) * math.pi/180)
             y = r * math.sin((i * nurk +90) * math.pi/180)
             self.algasukohad[i]= (x0+x, y0+y)
-            self.chipikohad[i]= (x0+x, y0+y+self.kü*19)
-            self.panusekohad[i]= (x0+x +self.lü*4, y0+y+self.kü*19)
+            self.chipikohad[i]= (x0+x, y0+y+self.kü*18)
+            self.panusekohad[i]= (x0+x +self.lü*4, y0+y+self.kü*18)
 
 
     def joonista_kaardid(self):
@@ -107,7 +107,7 @@ class pokkeriPõhi:
     def joonista_tekst(self):
         self.font = pygame.font.SysFont('arial', int(self.lü * 2.1))
         for i in range(self.mängijatearv): #joonistab numbrid kaartide peale
-            self.aken.blit(pygame.font.SysFont('arial', int(self.lü *3)).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+50,self.algasukohad[i][1]+30))
+            self.aken.blit(pygame.font.SysFont('arial', int(self.lü *3)).render(str(i+1), True, (10, 10, 10), (200,200,200)), (self.algasukohad[i][0]+self.lü*4,self.algasukohad[i][1]+self.lü*3))
         
         for i in range(self.mängijatearv): #joonistab mängija kaartide alla chippide arvu ning info selle kohta kas nad on foldinud
             if i in self.folditud:
@@ -136,7 +136,10 @@ class pokkeriPõhi:
 
             if panuseSumma[-2:] == " 0":
                 panuseSumma = "Määra panus [Enter]"
-            mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] " + panuseSumma + ", [F] Fold, [C] Check/Call"
+            if max(self.panused) > self.chipid[self.kellekäik]:
+                mängijastr = "Mängija " + str(self.kellekäik+1) + " [F] Fold, [C] All In"
+            else:
+                mängijastr = "Mängija " + str(self.kellekäik+1) + " [R] " + panuseSumma + ", [F] Fold, [C] Check/Call"
             self.aken.blit(self.font.render(mängijastr, True, (255, 255, 255), (25,100,0)), (self.lü * 31, self.kü * 69))
         if self.aktiivne:
             self.aken.blit(self.font.render(self.bet, True, (255, 255, 255), (25,100,0)), (self.lü*41,self.kü*61))
@@ -210,7 +213,7 @@ class pokkeriPõhi:
     def kontrolli_lõppu(self): #false kui veel vaja käia, true kui kõikide panused on võrdsed
         self.uued_käigud = []
         for i in range(len(self.panused)):
-            if self.panused[i] != max(self.panused) and i not in self.folditud and self.chipid[i] != 0: #kui panus pole piisavalt kõrge ja mängija pole foldinud
+            if self.panused[i] != max(self.panused) and i not in self.folditud and i not in self.allin and self.chipid[i] != 0: #kui panus pole piisavalt kõrge ja mängija pole foldinud
                 self.uued_käigud.append(i)
         print(self.panused)
         #print(self.uued_käigud)
@@ -229,7 +232,7 @@ class pokkeriPõhi:
             self.aken.fill((25,100,0))
             värv = (255, 255, 255) if self.aktiivne else (0, 0, 0)
 
-            if self.kellekäik in self.folditud or (self.kellekäik not in self.uued_käigud and len(self.uued_käigud) > 0) or self.chipid[self.kellekäik] == 0: #kui mängija on foldinud või ei pea uuesti käima
+            if self.kellekäik in self.folditud or self.kellekäik in self.allin or(self.kellekäik not in self.uued_käigud and len(self.uued_käigud) > 0) or self.chipid[self.kellekäik] == 0: #kui mängija on foldinud või ei pea uuesti käima
                     self.kellekäik += 1
                     if self.kellekäik == self.mängijatearv:
                         if self.kontrolli_lõppu():
@@ -260,13 +263,14 @@ class pokkeriPõhi:
                             self.aktiivne = True
 
 
-                    if event.key == pygame.K_r and not self.aktiivne:
+                    if event.key == pygame.K_r and not self.aktiivne and self.chipid[self.kellekäik] >= max(self.panused):
                         if not self.läbi and self.kellekäik not in self.folditud and self.bet_int >= max(self.panused):  #ainult siis kui panus on võrdne või kõrgem eelmisest kõrgeimast panusest
                             self.liigamadal = False
                             if self.chipid[self.kellekäik] >= self.bet_int:
                                 self.panused[self.kellekäik] = self.bet_int
                             else:
                                 self.panused[self.kellekäik] = self.chipid[self.kellekäik]
+
                             self.kellekäik += 1
                         elif self.bet_int < max(self.panused):
                             self.liigamadal = True #errori ekraanile näitamiseks
@@ -299,8 +303,9 @@ class pokkeriPõhi:
                         if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) == 0:
                             self.kellekäik += 1
                         if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) > 0:
-
                             self.panused[self.kellekäik] = min(max(self.panused), self.chipid[self.kellekäik])
+                            if self.chipid[self.kellekäik] < max(self.panused):
+                                self.allin.append(self.kellekäik)
                             self.liigamadal = False
                             self.kellekäik += 1
                             
@@ -323,7 +328,7 @@ class pokkeriPõhi:
                     ekraani_laius, ekraani_kõrgus = event.size[0], event.size[1]
                     self.aken = pygame.display.set_mode((ekraani_laius, ekraani_kõrgus), pygame.RESIZABLE)
                     self.lü = ekraani_laius / 100
-                    self.kü = ekraani_kõrgus / 100
+                    self.kü = (ekraani_laius/1.87)/ 100
                     self.arvuta_koordinaadid()
 
             
