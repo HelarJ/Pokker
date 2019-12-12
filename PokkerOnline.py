@@ -3,6 +3,9 @@ import random
 import pokker
 import itertools
 import math
+import asyncio
+import websockets
+import threading
 from sys import exit
 
 class pokkeriPõhi:
@@ -241,6 +244,7 @@ class pokkeriPõhi:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    suletud[0] = True
                     pygame.quit()
                     exit() 
                 elif event.type == pygame.KEYDOWN:
@@ -385,4 +389,33 @@ class pokkeriPõhi:
             self.fpsKell.tick(30)
 
 põhiaken = pokkeriPõhi()
+
+suletud = [False]
+async def hello(websocket, path):
+    while True:
+        try:
+            sõnum = await websocket.recv()
+            print("recv:", sõnum)
+            
+        except websockets.ConnectionClosed:
+            print("Ühendus suletud")
+            break
+        if suletud[0]:
+            asyncio.get_event_loop().stop()
+            break
+        vastus = "Tere " +  sõnum[:6]
+        await websocket.send(vastus)
+
+
+start_server = websockets.serve(hello, "localhost", 8765, close_timeout=10)
+
+asyncio.get_event_loop().run_until_complete(start_server)
+print("Server started")
+serverithread = threading.Thread(target=asyncio.get_event_loop().run_forever)
+
+
+serverithread.start()
+
+
 põhiaken.pokkeriKordus()
+
