@@ -2,18 +2,20 @@ import asyncio
 import websockets
 andmed = []
 
-connected = []
+connected = {}
 
 async def handler(websocket, path):
     sõnum = await websocket.recv()
     print("recv:", sõnum)
-    connected.append({sõnum[:6]:{"socket":websocket}})
+    connected[sõnum[:6]] = {"socket":websocket}
     vastus = "Tere " +  sõnum[:6]
     await websocket.send(vastus)
     while True:
         try:
             sõnum = await websocket.recv()
             print("recv:", sõnum)
+            if "Minu nimi on" in sõnum:
+                connected[sõnum[:6]]["nimi"] = sõnum[21:]
             print(connected)
             
         except websockets.ConnectionClosed:
