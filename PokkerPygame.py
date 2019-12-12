@@ -121,11 +121,11 @@ class pokkeriPõhi:
 
         if self.pot != 0:
             potStr = "Pot " + str(self.pot)
-            self.aken.blit(pygame.font.SysFont('arial', 25).render(potStr, True, (10, 10, 10), (200, 200, 200)), (200, 360))
+            self.aken.blit(pygame.font.SysFont('arial', int(self.lü * 2.1)).render(potStr, True, (10, 10, 10), (200, 200, 200)), (self.lü * 30, self.kü * 60))
 
         if self.läbi:
-            võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ self.võitja[1][0]
-            self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (self.lü * 20, self.kü *60))
+            võitjastr = "Mängija " + str(self.võitja[0]) + " on võitja | "+ str(self.võitja[1][0])
+            self.aken.blit(self.font.render(võitjastr, True, (255, 255, 255)), (self.lü * 31, self.kü * 69))
         
         if not self.läbi: #joonistab ainult siis kui mäng veel lõppenud pole
             if self.bet_int > max(self.panused):
