@@ -488,18 +488,30 @@ async def handler(websocket, path):
             if sõnum[7:11] == "k2ik":
                 põhiaken.tee_interneti_käik((sõnum[:6],sõnum[12:]))
                 await asyncio.sleep(1)
+                käigustr = ""
+                if sõnum[12] == "R":
+                    käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") tõstis panust "+ sõnum[13:] + "-ni"
+                elif sõnum[12] == "C":
+                    käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") checkis/callis"
+                elif sõnum[12] == "F":
+                    käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") foldis"
                 for element in connected.keys():
                     #print(element)
+                    await connected[element]["socket"].send(käigustr)
                     täielikudandmed = põhiaken.interneti_andmed.copy()
                     try:
                         täielikudandmed["k2si"] = connected[element]["k2si"]
                         täielikudandmed["number"] = connected[element]["number"]
                     except:
                         continue
+                    
                     await connected[element]["socket"].send(json.dumps(täielikudandmed))
             if sõnum[7:11] == "chat":
                 for element in connected.keys():
-                    await connected[element]["socket"].send("chat:"+connected[sõnum[:6]]["nimi"]+": "+ sõnum[12:])
+                    try:
+                        await connected[element]["socket"].send("chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+"): "+ sõnum[12:])
+                    except:
+                        await connected[element]["socket"].send("chat:"+connected[sõnum[:6]]["nimi"]+": "+ sõnum[12:])
 
             print("recv:", sõnum)
             
