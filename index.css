@@ -1,0 +1,16 @@
+.rida {
+    display:flex;
+}
+
+.vasak {
+    flex: 50%;
+  }
+.parem{
+    flex:50%;
+    max-width: 50%
+}
+  
+#kast p {
+    margin: 0;
+    padding: 0;
+}

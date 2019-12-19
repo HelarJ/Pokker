@@ -2,11 +2,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="index.css" />
 </head>
 <body id="body">
-    <div><input id="sisend" type="text"><a id="inputkirjeldus">IP</a><br>
-      <button id="submitnupp" onclick="submitvajutus(document.getElementById('sisend').value)">Esita</button>
+  <div class ="rida">
+    
+  <div class="vasak">
+    <div id="nupud" hidden>
+      <input id="panus" type="text"><a id="panusekirjeldus">Panus</a><br>
+      <button id="panusta" onclick="k2ik('R')">Panusta</button>
+      <button id="check" onclick="k2ik('C')">Check/Call</button>
+      <button id="fold" onclick="k2ik('F')">Fold</button>
+    </div>
+    <div id="info" hidden>
+      <p id="kohalik">Sina oled mängija </p>
+      <p id="m2ngijad">Mängijad: </p>
+      <p id="k2ik">Hetkel käib mängija </p>
+      <p id="laud">Laud: </p>
+      <p id="k2si">Sinu käsi: </p>
+      <p id="v6itja"></p>
   </div>
+</div>
+<div class="parem">
+  <div id="kast">
+    <input id="sisend" type="text"><a id="inputkirjeldus">IP</a><br>
+    <button id="submitnupp" onclick="submitvajutus(document.getElementById('sisend').value)">Esita</button>
+
+</div>
+</div>
+</div>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script type="text/javascript" src="skript.js"></script>
 </body>

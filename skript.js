@@ -1,38 +1,109 @@
 ID = Math.round(Math.random() * (999999-99999) + 100000) //genereerib kasutajale suvalise kuuekohalise ID
 socket = null
 var yhendatud = false
+var andmed = null
+var registreeritud = false
+document.getElementById('sisend').value = "127.0.0.1"
+inputkirjeldus = document.getElementById("inputkirjeldus")
+panusekirjeldus = document.getElementById("panusekirjeldus")
 
 function yhendus(ip){
     console.log(ip)
     try{
         console.log("Üritan ühendada...");
         socket = new WebSocket("ws://"+ip+":8765");
-        console.log("Ühendatud");
-
         socket.onopen = function () {
+            console.log("Ühendatud")
             socket.send(ID+": Tere server!"); 
         }
         socket.onmessage = function (event) {
             if (event.data == "Tere "+ID){
-                document.getElementById("inputkirjeldus").innerText = "Kasutajanimi"
-                yhendatud = true}
-            console.log(event.data);
+                inputkirjeldus.innerText = "Kasutajanimi"
+                yhendatud = true
+            }
+            else if (event.data == "Registreeritud"){
+                inputkirjeldus.innerText = ""
+                document.getElementById('submitnupp').innerText = "Chat"
+                registreeritud = true
+                document.getElementById("nupud").hidden = false
+            }
+            else if (event.data.slice(0,4)=="chat"){
+                uusrida = document.createElement("p"); 
+                uusrida.innerText = event.data.slice(5)
+                document.getElementById("kast").append(uusrida)
+            }
+            else if (event.data.charAt(0) == "{"){
+                andmed = JSON.parse(event.data)
+                document.getElementById("info").hidden = false
+                console.log(andmed)
+                str = ""
+                for (i=0; i<andmed["panused"].length;i++){
+                    str = str + (i+1) + ": "+  andmed["chipid"][i] + ", "
+                }
+                str = str.slice(0,-1)
+                document.getElementById("kohalik").innerText = "Sina oled mängija "+ (andmed["number"]+1)
+                document.getElementById("m2ngijad").innerText = "Mängijad: "+ str
+                document.getElementById("k2ik").innerText = "Hetkel käib mängija "+ (andmed["kellek2ik"]+1)
+                document.getElementById("laud").innerText = "Laud: "+ JSON.stringify(andmed["laud"])
+                document.getElementById("k2si").innerText = "Käsi: " + JSON.stringify(andmed["k2si"])
+                if (andmed["v6itja"]){
+                    document.getElementById("k2ik").innerText = "Mäng on läbi"
+                    document.getElementById("v6itja").innerText = "Võitis mängija " + JSON.stringify(andmed["v6itja"])
+                }
+                
+            }
+            console.log("Server: "+event.data);
         }
     }
     catch (err){
-        document.getElementById("inputkirjeldus").innerText = "Error"
+        inputkirjeldus.innerText = "Error"
         console.log(err)
 
     }
 }
+function k2ik(sisend){
+    document.getElementById("check").disabled = true
+    document.getElementById("panusta").disabled = true
+    document.getElementById("fold").disabled = true
+    setTimeout(() => {
+        document.getElementById("check").disabled = false
+        document.getElementById("panusta").disabled = false
+        document.getElementById("fold").disabled = false
+    }, 1000);
+    if (andmed && andmed["number"] != andmed["kellek2ik"]){
+        panusekirjeldus.innerText = "Pole sinu kord"
+        return
+    }
+    panusekirjeldus.innerText = "Panus"
+    if (sisend.charAt(0)=="R"){
+        p = document.getElementById("panus").value
+        p = parseInt(p)
+        document.getElementById("panus").value = p
+        sisend = sisend+p
+        if (isNaN(p) || !Number.isInteger(p) || p<1){
+            panusekirjeldus.innerText = "Sisesta korrektne panus."
+            return
+        }
+    }
 
-
+    panusekirjeldus.innerText = "Panus"
+    socket.send(ID+":k2ik:"+sisend)
+}
+function chatbox(s6num){
+    if (s6num){
+        socket.send(ID+":chat:"+s6num);
+    }
+}
 
 function kasutajanimi(nimi){
-    socket.send(ID+": Minu nimi on "+nimi);
+    if (!nimi){
+        nimi = "Anonymous"
+    }
+    socket.send(ID+":nimi:"+nimi);
 }
 
 function submitvajutus(sisend){
+    document.getElementById('sisend').value = ""
     document.getElementById("submitnupp").disabled = true
     setTimeout(() => {
         document.getElementById("submitnupp").disabled = false
@@ -40,7 +111,12 @@ function submitvajutus(sisend){
     if (!yhendatud){
         yhendus(sisend)
     }
-    else {kasutajanimi(sisend)}
+    else if (!registreeritud){
+        kasutajanimi(sisend)
+    }
+    else {
+        chatbox(sisend)
+    }
 }
 var input = document.getElementById("sisend");
 

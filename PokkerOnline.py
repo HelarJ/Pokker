@@ -6,6 +6,7 @@ import math
 import asyncio
 import websockets
 import threading
+import json
 from sys import exit
 
 class pokkeriPõhi:
@@ -33,17 +34,28 @@ class pokkeriPõhi:
         self.mängijatearv = 8
         self.algasukohad, self.chipikohad, self.panusekohad = [(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv
         self.arvuta_koordinaadid()
-        self.chipid = [5000]*self.mängijatearv
+        self.chipid = [5000]*23
        
         self.tühi_plats()
-        
+        self.esialgne = True
         
         self.font = pygame.font.SysFont('arial', int(self.lü * 2.1))
 
     def tühi_plats(self): #teeb tühjad järjendid, väärtused et saaks alustada uut mängu.
+        if len(connected.keys()) >= 1:
+            self.mängijatearv = len(connected.keys())
+            i = 0
+            for mängija in connected.keys():
+                connected[mängija]["number"] = i
+                self.chipid[i] == connected[mängija]["chipid"]
+                i+=1
+
         self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
         self.flop, self.turn, self.river, self.kk, self.läbi, self.aktiivne, = False,False,False,False,False,False
         self.liigamadal = False
+        self.esialgne = False
+        self.interneti_käik = ""
+        
         self.bet = ''
         self.bet_int = 0
         self.uued_käigud = []
@@ -57,6 +69,25 @@ class pokkeriPõhi:
         for i in range(len(self.chipid)):
             if self.chipid[i] == 0:
                 self.folditud.append(i)
+        self.interneti_andmed = {"laud":[], "panused":self.panused, "pot":self.pot, "folditud":self.folditud, 
+                                 "kellek2ik":self.kellekäik, "chipid":self.chipid}
+        try:
+            self.interneti_andmed.pop("v6itja")
+        except Exception:
+            pass
+
+        self.algasukohad, self.chipikohad, self.panusekohad = [(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv,[(0, 0)]*self.mängijatearv
+        self.arvuta_koordinaadid()
+        if len(connected.keys()) >= 1:
+            for element in connected.keys():
+                täielikudandmed = põhiaken.interneti_andmed.copy()
+                try:
+                    täielikudandmed["k2si"] = connected[element]["k2si"]
+                    täielikudandmed["number"] = connected[element]["number"]
+                except:
+                    continue
+                asyncio.ensure_future(connected[element]["socket"].send(json.dumps(täielikudandmed)))
+
 
     def arvuta_koordinaadid(self):
         r = self.lü*19
@@ -89,6 +120,7 @@ class pokkeriPõhi:
         
         
     def joonista_flop(self):
+        self.interneti_andmed["laud"] = self.laud[:3]
         kaardid = self.laud[:3]
         i = 0
         for knimi in kaardid:
@@ -98,11 +130,13 @@ class pokkeriPõhi:
             i += self.lü*9
     
     def joonista_turn(self):
+        self.interneti_andmed["laud"] = self.laud[:4]
         kaart = self.kaardipildid[self.laud[3]]
         kaart = pygame.transform.rotozoom(kaart, 0, self.lü / 135)
         self.aken.blit(kaart, (self.lü*9*3 + self.lü * 28, self.kü * 37))
     
     def joonista_river(self):
+        self.interneti_andmed["laud"] = self.laud
         kaart = self.kaardipildid[self.laud[4]]
         kaart = pygame.transform.rotozoom(kaart, 0, self.lü / 135)
         self.aken.blit(kaart, (self.lü*9*4 + self.lü * 28, self.kü * 37))
@@ -190,7 +224,11 @@ class pokkeriPõhi:
     def loo_mängijad(self):
         uuedmängijad = []
         for i in range(self.mängijatearv):
-            uuedmängijad.append(self.käsi())
+            uuskäsi = self.käsi()
+            uuedmängijad.append(uuskäsi)
+            for mängija, sisu in connected.items():
+                if sisu["number"] == i:
+                    sisu["k2si"] = uuskäsi
         return uuedmängijad
 
     def leia_tugevused(self): #leiab kõikide käte parima tugevuse
@@ -212,6 +250,7 @@ class pokkeriPõhi:
 
         print("võitja", uusvõitja)
         self.võitja = uusvõitja
+        self.interneti_andmed["v6itja"] = self.võitja
     
     def kontrolli_lõppu(self): #false kui veel vaja käia, true kui kõikide panused on võrdsed
         self.uued_käigud = []
@@ -222,13 +261,88 @@ class pokkeriPõhi:
         #print(self.uued_käigud)
         if len(self.uued_käigud) > 0:
             self.kellekäik = 0
+            self.interneti_andmed["kellek2ik"] = self.kellekäik
             return False
         else:
             for i in range(len(self.mängijad)):
                 self.chipid[i] -= self.panused[i]
             self.pot += sum(self.panused)
             self.panused = [0] * self.mängijatearv
+            self.interneti_andmed["pot"] = self.pot
+            self.interneti_andmed["panused"] = self.panused
+            self.interneti_andmed["chipid"] = self.chipid
             return True
+
+    def tee_interneti_käik(self, käik):
+        print(käik)
+        self.interneti_käik = käik
+        if not self.esialgne and self.interneti_käik and self.kellekäik == connected[self.interneti_käik[0]]["number"]:
+            print("jõudis kontrolli", self.interneti_käik)
+            if self.interneti_käik[1] == "C":
+                self.kontrolli_check()
+            elif self.interneti_käik[1] == "F":
+                self.kontrolli_fold()
+            elif self.interneti_käik[1][0] == "R":
+                self.bet = self.interneti_käik[1][1:]
+                self.bet_int = int(self.bet)
+                self.kontrolli_raise()
+
+    def kontrolli_raise(self):
+        if not self.läbi and self.kellekäik not in self.folditud and self.bet_int >= max(self.panused):  #ainult siis kui panus on võrdne või kõrgem eelmisest kõrgeimast panusest
+            self.liigamadal = False
+            if self.chipid[self.kellekäik] >= self.bet_int:
+                self.panused[self.kellekäik] = self.bet_int
+            else:
+                self.panused[self.kellekäik] = self.chipid[self.kellekäik]
+
+            self.kellekäik += 1
+        elif self.bet_int < max(self.panused):
+            self.liigamadal = True #errori ekraanile näitamiseks
+
+        if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
+                if self.kontrolli_lõppu():
+                    self.kk = True
+                    self.panused = [0] * self.mängijatearv #tühjendab panustelisti
+
+                self.kellekäik = 0
+                self.bet_int = 0
+        self.interneti_andmed["kellek2ik"] = self.kellekäik
+        self.interneti_andmed["panused"] = self.panused
+    
+    def kontrolli_fold(self):
+        if not self.läbi and self.kellekäik not in self.folditud:
+            self.folditud.append(self.kellekäik)
+            self.mängijad[self.kellekäik] = ["T", "T"]
+            self.liigamadal = False
+            self.kellekäik +=1
+        if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
+            if self.kontrolli_lõppu():
+                self.kk = True
+                self.panused = [0] * self.mängijatearv #tühjendab panustelisti
+            self.kellekäik = 0
+            self.bet_int = 0
+        self.interneti_andmed["kellek2ik"] = self.kellekäik
+        self.interneti_andmed["folditud"] = self.folditud
+
+    def kontrolli_check(self):
+        if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) == 0:
+            self.kellekäik += 1
+        if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) > 0:
+            self.panused[self.kellekäik] = min(max(self.panused), self.chipid[self.kellekäik])
+            if self.chipid[self.kellekäik] < max(self.panused):
+                self.allin.append(self.kellekäik)
+            self.liigamadal = False
+            self.kellekäik += 1
+        if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud                            
+            if self.kontrolli_lõppu():
+                self.kk = True
+                self.panused = [0] * self.mängijatearv #tühjendab panustelisti
+
+            self.kellekäik = 0
+            self.bet_int = 0
+        self.interneti_andmed["kellek2ik"] = self.kellekäik
+
+
             
     def pokkeriKordus(self):
         while True:
@@ -241,6 +355,7 @@ class pokkeriPõhi:
                         if self.kontrolli_lõppu():
                             self.kk = True
                         self.kellekäik = 0
+                    self.interneti_andmed["kellek2ik"] = self.kellekäik
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -268,59 +383,17 @@ class pokkeriPõhi:
 
 
                     if event.key == pygame.K_r and not self.aktiivne and self.chipid[self.kellekäik] >= max(self.panused):
-                        if not self.läbi and self.kellekäik not in self.folditud and self.bet_int >= max(self.panused):  #ainult siis kui panus on võrdne või kõrgem eelmisest kõrgeimast panusest
-                            self.liigamadal = False
-                            if self.chipid[self.kellekäik] >= self.bet_int:
-                                self.panused[self.kellekäik] = self.bet_int
-                            else:
-                                self.panused[self.kellekäik] = self.chipid[self.kellekäik]
-
-                            self.kellekäik += 1
-                        elif self.bet_int < max(self.panused):
-                            self.liigamadal = True #errori ekraanile näitamiseks
-
-                        if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
-                                if self.kontrolli_lõppu():
-                                    self.kk = True
-                                    self.panused = [0] * self.mängijatearv #tühjendab panustelisti
-
-                                self.kellekäik = 0
-                                self.bet_int = 0
-                                
-                            
+                        self.kontrolli_raise()
+                                 
                     if event.key == pygame.K_f and not self.aktiivne:
-                        if not self.läbi and self.kellekäik not in self.folditud:
-                            self.folditud.append(self.kellekäik)
-                            self.mängijad[self.kellekäik] = ["T", "T"]
-                            self.liigamadal = False
-                            self.kellekäik +=1
-                        if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud
-                            if self.kontrolli_lõppu():
-                                self.kk = True
-                                self.panused = [0] * self.mängijatearv #tühjendab panustelisti
-
-                            self.kellekäik = 0
-                            self.bet_int = 0
-                            
-                    
+                        self.kontrolli_fold()
+                        
                     if event.key == pygame.K_c and not self.aktiivne:
-                        if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) == 0:
-                            self.kellekäik += 1
-                        if not self.läbi and self.kellekäik not in self.folditud and max(self.panused) > 0:
-                            self.panused[self.kellekäik] = min(max(self.panused), self.chipid[self.kellekäik])
-                            if self.chipid[self.kellekäik] < max(self.panused):
-                                self.allin.append(self.kellekäik)
-                            self.liigamadal = False
-                            self.kellekäik += 1
-                            
-                        if self.kellekäik >= len(self.mängijad): #kui kõik on ära käinud                            
-                            if self.kontrolli_lõppu():
-                                self.kk = True
-                                self.panused = [0] * self.mängijatearv #tühjendab panustelisti
-
-                            self.kellekäik = 0
-                            self.bet_int = 0
-                            
+                        self.kontrolli_check()
+                    
+                    if event.key == pygame.K_p:
+                        for element in connected.keys():
+                            asyncio.ensure_future(connected[element]["socket"].send(json.dumps(self.interneti_andmed)))
                         
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if pygame.mouse.get_pos()[0] in range(0, 130) and pygame.mouse.get_pos()[1] in range(0,40):
@@ -388,26 +461,67 @@ class pokkeriPõhi:
             pygame.display.update()
             self.fpsKell.tick(30)
 
+
+connected = {}
 põhiaken = pokkeriPõhi()
 
 suletud = [False]
-async def hello(websocket, path):
+
+
+
+
+async def handler(websocket, path):
+    sõnum = await websocket.recv()
+    print("recv:", sõnum)
+    connected[sõnum[:6]] = {"socket":websocket}
+    connected[sõnum[:6]]["chipid"] = 5000
+    vastus = "Tere " +  sõnum[:6]
+    await websocket.send(vastus)
+    sõnum = await websocket.recv()
+    connected[sõnum[:6]]["nimi"] = sõnum[12:]
+    vastus = "Registreeritud"
+    await websocket.send(vastus)
+    
     while True:
         try:
             sõnum = await websocket.recv()
+            if sõnum[7:11] == "k2ik":
+                põhiaken.tee_interneti_käik((sõnum[:6],sõnum[12:]))
+                await asyncio.sleep(1)
+                for element in connected.keys():
+                    #print(element)
+                    täielikudandmed = põhiaken.interneti_andmed.copy()
+                    try:
+                        täielikudandmed["k2si"] = connected[element]["k2si"]
+                        täielikudandmed["number"] = connected[element]["number"]
+                    except:
+                        continue
+                    await connected[element]["socket"].send(json.dumps(täielikudandmed))
+            if sõnum[7:11] == "chat":
+                for element in connected.keys():
+                    await connected[element]["socket"].send("chat:"+connected[sõnum[:6]]["nimi"]+": "+ sõnum[12:])
+
             print("recv:", sõnum)
             
+            print(connected)
+            
         except websockets.ConnectionClosed:
+            for mängija, element in connected.items():
+                if element["socket"] == websocket:
+                    põhiaken.tee_interneti_käik((mängija,"F"))
+                    connected.pop(mängija)
+                    break
             print("Ühendus suletud")
             break
         if suletud[0]:
             asyncio.get_event_loop().stop()
             break
-        vastus = "Tere " +  sõnum[:6]
-        await websocket.send(vastus)
+        
+        
 
 
-start_server = websockets.serve(hello, "localhost", 8765, close_timeout=10)
+
+start_server = websockets.serve(handler, "localhost", 8765)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 print("Server started")
