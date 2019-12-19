@@ -1,0 +1,25 @@
+Tavaline pokkerimäng käivitub PokkerPygame.py failist. Muutes self.mängijatearv muutujat on võimalik teha mäng kuni 23 mängijaga.
+Kõik teksti/kaartide suurused ning asukohtad on dünaamilised ning muutuvad, kui akna suurust muuta.
+
+PokkerOnline on põhimõtteliselt sama mis PokkerPyGame, aga seal on veel lisaks teise lõimu peale tööle pandud asünkroonne websocket
+server, mis räägib client veebilehe javascriptiga. Veebileht on saadaval aadressil http://pokker.jaadla.com/ . IP, kui kasutada kohalikku
+serverit, on 127.0.0.1. Võid avada mitu erinevat tabi ning liituda nii mänguga - iga tab saab erineva ühenduse ja on seega erinev mängija.
+Samas on võimalik server ka üle võrgu tööle saada, muutes PokkerOnline failis serveri IPd (kõige all) (näiteks sinu LAN IP-ks)
+ning seejärel teistes arvutites ühendada selle sama IP-ga.
+Võrguliides on väga algeline, st see ei ole lollikindel. Mängu alustamiseks peab PokkerOnline pygame ekraanil vajutama "UUS MÄNG" nuppu, 
+siis kui kõik mängijad on ühendatud. 
+Seejärel, et kõik veebilehed saaks andmeid kätte, peab üks mängija veebilehel valima check/call ning alles siis saab mäng alata. 
+Teoreetiliselt võivad mängijad ka mängu ajal ruumist lahkuda/liituda. Lahkujad folditakse
+automaatselt ning uued liitujad lisatakse mängu alles pärast "uus mäng" vajutamist.
+Sisendid ja väljundid on tehtud suht kindlalt. Server ei võta vastu käiku, mida client teha ei tohi ning cliendile saadetakse ainult
+need andmed mida vaja, st üks mängija ei saa andmeid teise mängija kaartide kohta.
+
+Serveril on ka chat lisafunktsioon, mis töötab ka siis kui pokkerimängu pole alustatud. Chatboxi ilmuvad ka kõikide mängijate käigud.
+
+
+Projekti autorid:
+Silver Kolde
+Helar Jaadla
+
+Projekti Github:
+https://github.com/HelarJ/Pokker
