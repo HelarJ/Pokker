@@ -489,12 +489,15 @@ async def handler(websocket, path):
                 põhiaken.tee_interneti_käik((sõnum[:6],sõnum[12:]))
                 await asyncio.sleep(1)
                 käigustr = ""
-                if sõnum[12] == "R":
-                    käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") tõstis panust "+ sõnum[13:] + "-ni"
-                elif sõnum[12] == "C":
-                    käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") checkis/callis"
-                elif sõnum[12] == "F":
-                    käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") foldis"
+                try:
+                    if sõnum[12] == "R":
+                        käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") tõstis panust "+ sõnum[13:] + "-ni"
+                    elif sõnum[12] == "C":
+                        käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") checkis/callis"
+                    elif sõnum[12] == "F":
+                        käigustr = "chat:"+connected[sõnum[:6]]["nimi"]+"("+str(connected[sõnum[:6]]["number"]+1)+") foldis"
+                except Exception:
+                    pass
                 for element in connected.keys():
                     #print(element)
                     await connected[element]["socket"].send(käigustr)
@@ -533,7 +536,7 @@ async def handler(websocket, path):
 
 
 
-start_server = websockets.serve(handler, "localhost", 8765)
+start_server = websockets.serve(handler, "172.17.170.89", 8765)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 print("Server started")
