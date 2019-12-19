@@ -276,6 +276,10 @@ class pokkeriPõhi:
     def tee_interneti_käik(self, käik):
         print(käik)
         self.interneti_käik = käik
+        try: 
+            connected[self.interneti_käik[0]]["number"]
+        except:
+            return
         if not self.esialgne and self.interneti_käik and self.kellekäik == connected[self.interneti_käik[0]]["number"]:
             print("jõudis kontrolli", self.interneti_käik)
             if self.interneti_käik[1] == "C":
@@ -524,6 +528,13 @@ async def handler(websocket, path):
             for mängija, element in connected.items():
                 if element["socket"] == websocket:
                     põhiaken.tee_interneti_käik((mängija,"F"))
+                    try:
+                        if element["number"] not in põhiaken.folditud:
+                            põhiaken.folditud.append(element["number"])
+                    except Exception:
+                        pass
+                    
+
                     connected.pop(mängija)
                     break
             print("Ühendus suletud")
@@ -536,7 +547,7 @@ async def handler(websocket, path):
 
 
 
-start_server = websockets.serve(handler, "172.17.170.89", 8765)
+start_server = websockets.serve(handler, "127.0.0.1", 8765)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 print("Server started")
