@@ -42,19 +42,22 @@ class pokkeriPõhi:
         self.font = pygame.font.SysFont('arial', int(self.lü * 2.1))
 
     def tühi_plats(self): #teeb tühjad järjendid, väärtused et saaks alustada uut mängu.
+        self.uusmäng = False
         if len(connected.keys()) >= 1:
             self.mängijatearv = len(connected.keys())
             i = 0
             for mängija in connected.keys():
                 connected[mängija]["number"] = i
+                connected[mängija]["ready"] = False
                 self.chipid[i] == connected[mängija]["chipid"]
                 i+=1
-
-        self.mängijad, self.laud, self.tugevused, self.võitja = [],[],[],[]
+        print(self.mängijatearv)
+        self.laud, self.tugevused, self.võitja = [],[],[]
         self.flop, self.turn, self.river, self.kk, self.läbi, self.aktiivne, = False,False,False,False,False,False
         self.liigamadal = False
         self.esialgne = False
         self.interneti_käik = ""
+        
         
         self.bet = ''
         self.bet_int = 0
@@ -66,6 +69,7 @@ class pokkeriPõhi:
         self.folditud = []
         self.allin = []
         self.uued = self.kaardid.copy()
+        self.mängijad = self.loo_mängijad()
         for i in range(len(self.chipid)):
             if self.chipid[i] == 0:
                 self.folditud.append(i)
@@ -87,6 +91,8 @@ class pokkeriPõhi:
                 except:
                     continue
                 asyncio.ensure_future(connected[element]["socket"].send(json.dumps(täielikudandmed)))
+        
+        self.uusmäng = True
 
 
     def arvuta_koordinaadid(self):
@@ -205,6 +211,7 @@ class pokkeriPõhi:
     def tugevus(self, seitsekaarti):
         print(seitsekaarti)
         kõik_variandid = itertools.combinations(seitsekaarti,5)
+        print(kõik_variandid)
         parim = "Kõrge kaart"
         tugevus = 0
         for variant in kõik_variandid:
@@ -218,7 +225,11 @@ class pokkeriPõhi:
                 tugevus = uustugevus[1]
                 parim = uustugevus[0]
                 käsi = uustugevus[2]
-        print("Mängija", parim, tugevus, käsi)
+        try:
+            print("Mängija", parim, tugevus, käsi)
+        except Exception:
+            return ("Error",-1)
+
         return (parim, tugevus)
     
     def loo_mängijad(self):
@@ -346,7 +357,6 @@ class pokkeriPõhi:
             self.bet_int = 0
         self.interneti_andmed["kellek2ik"] = self.kellekäik
 
-
             
     def pokkeriKordus(self):
         while True:
@@ -412,16 +422,15 @@ class pokkeriPõhi:
                     self.kü = (ekraani_laius/1.87)/ 100
                     self.arvuta_koordinaadid()
 
-            
-
-            if not self.mängijad:
-                self.mängijad = self.loo_mängijad()
-                print("mängijad",self.mängijad)
 
             if not self.laud:
                 self.laud = self.lauaKaardid()
 
-            self.joonista_kaardid()
+            try:
+                self.joonista_kaardid()
+            except Exception:
+                pass
+                
 
             if not self.tugevused:
                 self.tugevused = self.leia_tugevused()
@@ -461,12 +470,27 @@ class pokkeriPõhi:
             if self.mängijad:
                 pygame.draw.rect(self.aken, värv, (self.lü * 40, self.kü * 60, self.lü* 25, self.kü*7), 2)
                 
-            self.joonista_tekst()
+            try:
+                self.joonista_tekst()
+            except Exception:
+                pass
             pygame.display.update()
             self.fpsKell.tick(30)
 
 
+
 connected = {}
+
+def onready():
+    for element in connected.keys():
+        if connected[element]["ready"]:
+            continue
+        else:
+            return False
+    return True
+
+            
+
 põhiaken = pokkeriPõhi()
 
 suletud = [False]
@@ -479,6 +503,7 @@ async def handler(websocket, path):
     print("recv:", sõnum)
     connected[sõnum[:6]] = {"socket":websocket}
     connected[sõnum[:6]]["chipid"] = 5000
+    connected[sõnum[:6]]["ready"] = False
     vastus = "Tere " +  sõnum[:6]
     await websocket.send(vastus)
     sõnum = await websocket.recv()
@@ -489,6 +514,24 @@ async def handler(websocket, path):
     while True:
         try:
             sõnum = await websocket.recv()
+            if sõnum[7:12] == "ready":
+                connected[sõnum[:6]]["ready"] = True
+                if onready():
+                    
+                    põhiaken.tühi_plats()
+                    await asyncio.sleep(1)
+                    for element in connected.keys():
+                        #print(element)
+                        await connected[element]["socket"].send("chat:Mäng on valmis")
+                        täielikudandmed = põhiaken.interneti_andmed.copy()
+                        try:
+                            täielikudandmed["k2si"] = connected[element]["k2si"]
+                            täielikudandmed["number"] = connected[element]["number"]
+                        except:
+                            continue
+                        
+                        await connected[element]["socket"].send(json.dumps(täielikudandmed))
+
             if sõnum[7:11] == "k2ik":
                 põhiaken.tee_interneti_käik((sõnum[:6],sõnum[12:]))
                 await asyncio.sleep(1)
@@ -520,6 +563,8 @@ async def handler(websocket, path):
                     except:
                         await connected[element]["socket"].send("chat:"+connected[sõnum[:6]]["nimi"]+": "+ sõnum[12:])
 
+
+
             print("recv:", sõnum)
             
             print(connected)
@@ -528,6 +573,7 @@ async def handler(websocket, path):
             for mängija, element in connected.items():
                 if element["socket"] == websocket:
                     põhiaken.tee_interneti_käik((mängija,"F"))
+                    disconimi = mängija
                     try:
                         if element["number"] not in põhiaken.folditud:
                             põhiaken.folditud.append(element["number"])
@@ -537,8 +583,20 @@ async def handler(websocket, path):
 
                     connected.pop(mängija)
                     break
-            print("Ühendus suletud")
+            print("Ühendus suletud: " + disconimi)
+
+
+            for element in connected.keys():
+                täielikudandmed = põhiaken.interneti_andmed.copy()
+                try:
+                    täielikudandmed["k2si"] = connected[element]["k2si"]
+                    täielikudandmed["number"] = connected[element]["number"]
+                except:
+                    continue
+                await connected[element]["socket"].send(json.dumps(täielikudandmed))
+                
             break
+           
         if suletud[0]:
             asyncio.get_event_loop().stop()
             break

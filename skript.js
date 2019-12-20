@@ -3,6 +3,7 @@ socket = null
 var yhendatud = false
 var andmed = null
 var registreeritud = false
+var ready = false
 document.getElementById('sisend').value = "127.0.0.1"
 inputkirjeldus = document.getElementById("inputkirjeldus")
 panusekirjeldus = document.getElementById("panusekirjeldus")
@@ -25,7 +26,8 @@ function yhendus(ip){
                 inputkirjeldus.innerText = ""
                 document.getElementById('submitnupp').innerText = "Chat"
                 registreeritud = true
-                document.getElementById("nupud").hidden = false
+                document.getElementById("ready").hidden = false
+                
             }
             else if (event.data.slice(0,4)=="chat"){
                 uusrida = document.createElement("p"); 
@@ -34,12 +36,20 @@ function yhendus(ip){
             }
             else if (event.data.charAt(0) == "{"){
                 andmed = JSON.parse(event.data)
+                document.getElementById("ready").hidden = true
+                document.getElementById("nupud").hidden = false
                 document.getElementById("info").hidden = false
                 console.log(andmed)
                 str = ""
                 for (i=0; i<andmed["panused"].length;i++){
                     str = str + (i+1) + ": "+  andmed["chipid"][i] + ", "
                 }
+                folditud = ""
+                for (i=0;i<andmed["folditud"].length;i++){
+                    folditud = folditud + (andmed["folditud"][i]+1) + " "
+                }
+
+                document.getElementById("folditud").innerText = "Folditud: "+ folditud
                 str = str.slice(0,-1)
                 document.getElementById("kohalik").innerText = "Sina oled mängija "+ (andmed["number"]+1)
                 document.getElementById("m2ngijad").innerText = "Mängijad: "+ str
@@ -49,6 +59,12 @@ function yhendus(ip){
                 if (andmed["v6itja"]){
                     document.getElementById("k2ik").innerText = "Mäng on läbi"
                     document.getElementById("v6itja").innerText = "Võitis mängija " + JSON.stringify(andmed["v6itja"])
+                    document.getElementById("ready").hidden = false
+                    document.getElementById("nupud").hidden = true
+                    document.getElementById("info").hidden = true
+                    document.getElementById("ready").disabled = false
+                } else {
+                    document.getElementById("v6itja").innerText = ""
                 }
                 
             }
@@ -60,6 +76,11 @@ function yhendus(ip){
         console.log(err)
 
     }
+}
+
+function valmis(){
+    document.getElementById("ready").disabled = true
+    socket.send(ID+":ready:")
 }
 function k2ik(sisend){
     document.getElementById("check").disabled = true

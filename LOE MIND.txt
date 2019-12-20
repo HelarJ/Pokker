@@ -6,13 +6,8 @@ server, mis räägib client veebilehe javascriptiga. Veebileht on saadaval aadre
 serverit, on 127.0.0.1. Võid avada mitu erinevat tabi ning liituda nii mänguga - iga tab saab erineva ühenduse ja on seega erinev mängija.
 Samas on võimalik server ka üle võrgu tööle saada, muutes PokkerOnline failis serveri IPd (kõige all) (näiteks sinu LAN IP-ks)
 ning seejärel teistes arvutites ühendada selle sama IP-ga.
-Võrguliides on väga algeline, st see ei ole lollikindel. Mängu alustamiseks peab PokkerOnline pygame ekraanil vajutama "UUS MÄNG" nuppu, 
-siis kui kõik mängijad on ühendatud. 
-Seejärel, et kõik veebilehed saaks andmeid kätte, peab üks mängija veebilehel valima check/call ning alles siis saab mäng alata. 
-Teoreetiliselt võivad mängijad ka mängu ajal ruumist lahkuda/liituda. Lahkujad folditakse
-automaatselt ning uued liitujad lisatakse mängu alles pärast "uus mäng" vajutamist.
-Sisendid ja väljundid on tehtud suht kindlalt. Server ei võta vastu käiku, mida client teha ei tohi ning cliendile saadetakse ainult
-need andmed mida vaja, st üks mängija ei saa andmeid teise mängija kaartide kohta.
+Mängu alustamiseks peavad kõik ühendatud mängijad vajutama "valmis" nuppu. Kui keegi vahepeal disconnectib siis pannakse talle
+automaatselt fold. Kui keegi liitub vahepeal juurde siis peab ta ootama järgmise mängu algust.
 
 Serveril on ka chat lisafunktsioon, mis töötab ka siis kui pokkerimängu pole alustatud. Chatboxi ilmuvad ka kõikide mängijate käigud.
 
